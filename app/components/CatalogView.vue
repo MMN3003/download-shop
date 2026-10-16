@@ -75,10 +75,12 @@ const filtersOpen = ref(false)
         <p class="text-sm font-medium">{{ l(f.name) }}</p>
         <template v-if="f.kind === 'SELECT' || f.kind === 'MULTISELECT'">
           <UCheckbox
-            v-for="o in f.options ?? []" :key="o.value" :label="l(o.label)"
+            v-for="o in f.options ?? []" :key="o.value"
             :model-value="selected(f.key).includes(o.value)"
             @update:model-value="v => toggleOption(f.key, o.value, !!v)"
-          />
+          >
+            <template #label><span class="inline-flex items-center gap-1.5"><OptionMark :option="o" />{{ l(o.label) }}</span></template>
+          </UCheckbox>
         </template>
         <USwitch v-else-if="f.kind === 'BOOLEAN'" :label="t('catalog.yes')" :model-value="route.query[`attr_${f.key}`] === '1'" @update:model-value="v => setQuery({ [`attr_${f.key}`]: v ? '1' : undefined })" />
         <div v-else-if="f.kind === 'NUMBER'" class="flex gap-2">

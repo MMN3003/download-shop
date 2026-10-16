@@ -24,6 +24,7 @@ Production: `pnpm build && pnpm db:deploy && node .output/server/index.mjs`. Upl
 
 - **Generic core** (`prisma/schema.prisma`): sections (tree), product types, custom attribute definitions per type, products, attribute values, files with versions, previews, settings.
 - **Product types** are created in the admin panel (Admin → Product types). Each type has its own fields (text, number, yes/no, single/multiple choice) and chooses which are required, used as filters, or shown as badges.
+- **Shared lists** (Admin → Shared lists, `server/utils/option-lists.ts`): choices such as languages, each with a flag or icon, defined once. Choice fields can use a list instead of their own options, and a section can generate its sub-sections from a list (Languages → one section per language). Products land in those sections automatically from the field marked "Show products in the matching sections", so menus, filters and product pages always show the same languages.
 - **Plugins** (`server/product-plugins/`) add smart behaviour to a type. A plugin reads the uploaded main file and returns attribute values and previews. `anki.ts` is the first; register new ones in `index.ts` and add a preview component in `app/components/ProductPreviews.vue`.
 - **Store settings** (name, logo, currency, default commission…) live in the database, so the same code can run any store.
 - Storefront: `app/pages/` (home, `/s/<section>`, `/p/<product>`, `/search`). Admin: `app/pages/admin/`. API: `server/api/`.

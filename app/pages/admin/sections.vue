@@ -6,9 +6,11 @@ const toast = useToast()
 const localePath = useLocalePath()
 
 const { data: sections, refresh } = await useFetch<any[]>('/api/admin/sections')
+const { data: lists } = await useFetch<any[]>('/api/admin/option-lists')
+const listItems = computed(() => [{ label: t('admin.section.noList'), value: '__none' }, ...(lists.value ?? []).map(x => ({ label: l(x.name), value: x.id }))])
 const tree = computed(() => buildSectionTree(sections.value ?? []).flat)
 
-const empty = () => ({ id: '', slug: '', name: {}, description: {}, icon: '', banner: null, bannerUrl: null, seoTitle: {}, seoDesc: {}, showOnHome: false, sortOrder: 0, parentId: null as string | null })
+const empty = () => ({ id: '', slug: '', name: {}, description: {}, icon: '', banner: null, bannerUrl: null, seoTitle: {}, seoDesc: {}, showOnHome: false, sortOrder: 0, parentId: null as string | null, childrenListId: null as string | null, optionItemId: null as string | null })
 const editing = ref<any>(null)
 const open = ref(false)
 const saving = ref(false)
@@ -34,7 +36,7 @@ watch(() => editing.value?.name, (name) => {
 
 async function save() {
   saving.value = true
-  const { id, bannerUrl: _b, productCount: _c, _count: _x, createdAt: _ca, updatedAt: _u, slugTouched: _s, ...body } = editing.value
+  const { id, bannerUrl: _b, productCount: _c, _count: _x, createdAt: _ca, updatedAt: _u, slugTouched: _s, optionItemId: _o, ...body } = editing.value
   try {
     await $fetch(id ? `/api/admin/sections/${id}` : '/api/admin/sections', { method: id ? 'PUT' : 'POST', body: { ...body, icon: body.icon || null } })
     toast.add({ title: t('admin.saved'), color: 'success' })
@@ -83,6 +85,8 @@ async function move(s: any, dir: -1 | 1) {
               <p class="font-medium truncate">{{ l(s.name) }}</p>
               <p class="text-xs text-muted" dir="ltr">/s/{{ s.slug }}</p>
             </div>
+            <UBadge v-if="s.optionItemId" color="info" variant="soft" size="sm" icon="i-lucide-link">{{ t('admin.section.fromList') }}</UBadge>
+            <UBadge v-if="s.childrenListId" color="info" variant="soft" size="sm" icon="i-lucide-list">{{ l(lists?.find(x => x.id === s.childrenListId)?.name) }}</UBadge>
             <UBadge v-if="s.showOnHome" color="primary" variant="soft" size="sm">{{ t('admin.section.showOnHome') }}</UBadge>
             <span class="text-sm text-muted w-16 text-center">{{ num(s.productCount) }}</span>
             <div class="flex gap-1">
@@ -100,15 +104,19 @@ async function move(s: any, dir: -1 | 1) {
       <USlideover v-model:open="open" :title="editing?.id ? t('admin.edit') : t('admin.new')" :ui="{ content: 'max-w-xl' }">
         <template #body>
           <form v-if="editing" id="section-form" class="space-y-4" @submit.prevent="save">
-            <UFormField :label="t('admin.section.name')" required><AdminLocalizedInput v-model="editing.name" /></UFormField>
+            <UAlert v-if="editing.optionItemId" color="info" variant="subtle" icon="i-lucide-link" :description="t('admin.section.fromListHelp')" :actions="[{ label: t('admin.lists'), to: localePath('/admin/lists') }]" />
+            <UFormField :label="t('admin.section.name')" required><AdminLocalizedInput v-model="editing.name" :disabled="!!editing.optionItemId" /></UFormField>
             <UFormField :label="t('admin.section.slug')" required>
               <UInput v-model="editing.slug" dir="ltr" class="w-full" @input="editing.slugTouched = true" />
             </UFormField>
             <UFormField :label="t('admin.section.parent')">
               <USelect :model-value="editing.parentId ?? '__none'" :items="parentItems" class="w-full" @update:model-value="v => editing.parentId = v === '__none' ? null : v" />
             </UFormField>
-            <UFormField :label="t('admin.section.icon')" help="i-lucide-…">
+            <UFormField v-if="!editing.optionItemId" :label="t('admin.section.icon')" help="i-lucide-… / i-circle-flags-…">
               <UInput v-model="editing.icon" dir="ltr" class="w-full" :leading-icon="editing.icon || 'i-lucide-folder'" />
+            </UFormField>
+            <UFormField v-if="!editing.optionItemId" :label="t('admin.section.childrenList')" :help="t('admin.section.childrenListHelp')">
+              <USelect :model-value="editing.childrenListId ?? '__none'" :items="listItems" class="w-full" @update:model-value="v => editing.childrenListId = v === '__none' ? null : v" />
             </UFormField>
             <UFormField :label="t('admin.section.description')"><AdminLocalizedInput v-model="editing.description" textarea /></UFormField>
             <UFormField :label="t('admin.section.banner')"><AdminImageUpload v-model="editing.banner" :url="editing.bannerUrl" /></UFormField>

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
   if (q.section) {
     const s = await prisma.section.findUnique({ where: { slug: q.section } })
     if (!s) return { items: [], total: 0, page, perPage }
-    and.push({ sections: { some: { sectionId: { in: await sectionWithDescendants(s.id) } } } })
+    and.push(await productsInSection(s.id))
   }
   let typeId: string | undefined
   if (q.type) {

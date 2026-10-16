@@ -10,6 +10,8 @@ const localePath = useLocalePath()
 const isNew = route.params.id === 'new'
 
 const { data: plugins } = await useFetch<any[]>('/api/admin/plugins')
+const { data: lists } = await useFetch<any[]>('/api/admin/option-lists')
+const listItems = computed(() => [{ label: t('admin.type.ownOptions'), value: '__own' }, ...(lists.value ?? []).map(x => ({ label: l(x.name), value: x.id }))])
 const form = ref<any>({ key: '', name: {}, description: {}, plugin: null, icon: '', enabled: true, attributes: [] })
 if (!isNew) {
   const data = await requestFetch<any>(`/api/admin/product-types/${route.params.id}`)
@@ -41,7 +43,7 @@ async function save() {
   const { id: _id, createdAt: _c, _count: _x, ...body } = form.value
   body.icon = body.icon || null
   body.attributes = body.attributes.map(({ id: _i, productTypeId: _p, sortOrder: _s, ...a }: any) => ({
-    ...a, options: ['SELECT', 'MULTISELECT'].includes(a.kind) ? a.options : null,
+    ...a, options: ['SELECT', 'MULTISELECT'].includes(a.kind) && !a.optionListId ? a.options : null,
   }))
   try {
     const saved = await $fetch<any>(isNew ? '/api/admin/product-types' : `/api/admin/product-types/${route.params.id}`, { method: isNew ? 'POST' : 'PUT', body })
@@ -108,13 +110,24 @@ async function remove() {
                 <UFormField :label="t('admin.type.kind')"><USelect v-model="a.kind" :items="kindItems" class="w-full" /></UFormField>
               </div>
               <div v-if="a.kind === 'SELECT' || a.kind === 'MULTISELECT'" class="space-y-2">
-                <p class="text-sm font-medium">{{ t('admin.type.options') }}</p>
-                <div v-for="(o, j) in a.options" :key="j" class="grid gap-2 grid-cols-[8rem_1fr_auto] items-start">
-                  <UInput v-model="o.value" dir="ltr" :placeholder="t('admin.type.optionValue')" />
-                  <AdminLocalizedInput v-model="o.label" />
-                  <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="a.options.splice(j, 1)" />
-                </div>
-                <UButton icon="i-lucide-plus" size="xs" color="neutral" variant="outline" :label="t('admin.type.addOption')" @click="a.options.push({ value: '', label: {} })" />
+                <UFormField :label="t('admin.type.optionSource')" :help="t('admin.type.optionSourceHelp')">
+                  <USelect :model-value="a.optionListId ?? '__own'" :items="listItems" class="w-full sm:w-72" @update:model-value="v => a.optionListId = v === '__own' ? null : v" />
+                </UFormField>
+                <template v-if="a.optionListId">
+                  <div class="flex flex-wrap gap-2">
+                    <UBadge v-for="o in lists?.find(x => x.id === a.optionListId)?.items ?? []" :key="o.id" color="neutral" variant="soft"><OptionMark :option="{ icon: o.icon, image: o.imageUrl }" />{{ l(o.label) }}</UBadge>
+                  </div>
+                  <USwitch v-model="a.linksSections" :label="t('admin.type.linksSections')" :description="t('admin.type.linksSectionsHelp')" />
+                </template>
+                <template v-else>
+                  <p class="text-sm font-medium">{{ t('admin.type.options') }}</p>
+                  <div v-for="(o, j) in a.options" :key="j" class="grid gap-2 grid-cols-[8rem_1fr_auto] items-start">
+                    <UInput v-model="o.value" dir="ltr" :placeholder="t('admin.type.optionValue')" />
+                    <AdminLocalizedInput v-model="o.label" />
+                    <UButton icon="i-lucide-x" color="neutral" variant="ghost" @click="a.options.splice(j, 1)" />
+                  </div>
+                  <UButton icon="i-lucide-plus" size="xs" color="neutral" variant="outline" :label="t('admin.type.addOption')" @click="a.options.push({ value: '', label: {} })" />
+                </template>
               </div>
               <UFormField v-if="a.kind === 'NUMBER'" :label="t('admin.type.unit')"><AdminLocalizedInput v-model="a.unit" /></UFormField>
               <div class="flex flex-wrap items-center gap-x-6 gap-y-2">

@@ -10,6 +10,7 @@ import { prisma } from '../server/utils/prisma'
 import { makeKey, putFile } from '../server/utils/storage'
 import { applyPluginAnalysis, refreshSearchText, writeAttributes } from '../server/utils/catalog'
 import { ankiPlugin, analyzeApkg } from '../server/product-plugins/anki'
+import { listOptions, syncSectionChildren } from '../server/utils/option-lists'
 
 const hash = new Hash(new Scrypt({}))
 const L = (fa: string, en: string) => ({ fa, en })
@@ -29,24 +30,30 @@ async function main() {
   })
 
   // Product type with its custom fields; the Anki plugin fills the auto fields
+  // One shared language list feeds the product fields, the search filters and the Languages menu
   const languages = [
-    { value: 'ar-iq', label: L('عربی عراقی', 'Iraqi Arabic') },
-    { value: 'ar', label: L('عربی فصیح', 'Standard Arabic') },
-    { value: 'en', label: L('انگلیسی', 'English') },
-    { value: 'de', label: L('آلمانی', 'German') },
-    { value: 'fr', label: L('فرانسوی', 'French') },
-    { value: 'tr', label: L('ترکی استانبولی', 'Turkish') },
-    { value: 'it', label: L('ایتالیایی', 'Italian') },
-    { value: 'fa', label: L('فارسی', 'Persian') },
+    { value: 'iraqi-arabic', label: L('عربی عراقی', 'Iraqi Arabic'), icon: 'i-circle-flags-iq' },
+    { value: 'arabic', label: L('عربی فصیح', 'Standard Arabic'), icon: 'i-circle-flags-sa' },
+    { value: 'english', label: L('انگلیسی', 'English'), icon: 'i-circle-flags-gb' },
+    { value: 'german', label: L('آلمانی', 'German'), icon: 'i-circle-flags-de' },
+    { value: 'french', label: L('فرانسوی', 'French'), icon: 'i-circle-flags-fr' },
+    { value: 'turkish', label: L('ترکی استانبولی', 'Turkish'), icon: 'i-circle-flags-tr' },
+    { value: 'italian', label: L('ایتالیایی', 'Italian'), icon: 'i-circle-flags-it' },
+    { value: 'persian', label: L('فارسی', 'Persian'), icon: 'i-circle-flags-ir' },
   ]
+  const langList = await prisma.optionList.upsert({ where: { key: 'languages' }, create: { key: 'languages', name: L('زبان‌ها', 'Languages') }, update: {} })
+  if (!(await prisma.optionItem.count({ where: { listId: langList.id } }))) {
+    await prisma.optionItem.createMany({ data: languages.map((x, i) => ({ ...x, listId: langList.id, sortOrder: i })) })
+  }
+  const langOptions = await listOptions(langList.id)
   const anki = await prisma.productType.upsert({
     where: { key: 'anki-deck' },
     create: { key: 'anki-deck', name: L('فلش‌کارت انکی', 'Anki deck'), plugin: 'anki', icon: 'i-lucide-layers' },
     update: {},
   })
   const attrs = [
-    { key: 'language', name: L('زبان آموزشی', 'Language taught'), kind: 'SELECT', options: languages, filterable: true, showAsBadge: true },
-    { key: 'translation', name: L('زبان ترجمه', 'Translated into'), kind: 'MULTISELECT', options: languages, filterable: true },
+    { key: 'language', name: L('زبان آموزشی', 'Language taught'), kind: 'SELECT', options: langOptions, optionListId: langList.id, linksSections: true, filterable: true, showAsBadge: true },
+    { key: 'translation', name: L('زبان ترجمه', 'Translated into'), kind: 'MULTISELECT', options: langOptions, optionListId: langList.id, filterable: true },
     { key: 'level', name: L('سطح', 'Level'), kind: 'SELECT', filterable: true, showAsBadge: true, options: [
       { value: 'beginner', label: L('مبتدی', 'Beginner') },
       { value: 'intermediate', label: L('متوسط', 'Intermediate') },
@@ -60,7 +67,7 @@ async function main() {
     ...ankiPlugin.providesAttributes.map(a => ({ ...a, autoFilled: true, filterable: a.key === 'has_audio', showAsBadge: a.key === 'card_count' })),
   ]
   for (const [i, a] of attrs.entries()) {
-    const data = { name: a.name, kind: a.kind as any, options: (a as any).options, filterable: !!(a as any).filterable, showAsBadge: !!(a as any).showAsBadge, autoFilled: !!(a as any).autoFilled, sortOrder: i }
+    const data = { name: a.name, kind: a.kind as any, options: (a as any).options, optionListId: (a as any).optionListId ?? null, linksSections: !!(a as any).linksSections, filterable: !!(a as any).filterable, showAsBadge: !!(a as any).showAsBadge, autoFilled: !!(a as any).autoFilled, sortOrder: i }
     await prisma.attributeDefinition.upsert({
       where: { productTypeId_key: { productTypeId: anki.id, key: a.key } },
       create: { productTypeId: anki.id, key: a.key, ...data },
@@ -88,11 +95,11 @@ async function main() {
   // Sections
   const section = async (slug: string, name: Record<string, string>, parentId: string | null, sortOrder: number, extra: object = {}) =>
     prisma.section.upsert({ where: { slug }, create: { slug, name, parentId, sortOrder, ...extra }, update: {} })
-  const langs = await section('languages', L('آموزش زبان', 'Languages'), null, 0, { showOnHome: true, icon: 'i-lucide-languages', description: L('فلش‌کارت و منابع یادگیری زبان‌های خارجی', 'Flashcards and resources for learning languages') })
-  const arabic = await section('arabic', L('عربی', 'Arabic'), langs.id, 0, { showOnHome: true, icon: 'i-lucide-moon-star' })
-  const iraqi = await section('iraqi-arabic', L('لهجه عراقی', 'Iraqi dialect'), arabic.id, 0)
-  await section('english', L('انگلیسی', 'English'), langs.id, 1, { showOnHome: true, icon: 'i-lucide-globe' })
-  await section('german', L('آلمانی', 'German'), langs.id, 2)
+  // Its children are generated from the language list (existing sections with the same slug are reused)
+  const langs = await section('languages', L('آموزش زبان', 'Languages'), null, 0, { showOnHome: true, icon: 'i-lucide-languages', childrenListId: langList.id, description: L('فلش‌کارت و منابع یادگیری زبان‌های خارجی', 'Flashcards and resources for learning languages') })
+  await prisma.section.update({ where: { id: langs.id }, data: { childrenListId: langList.id } })
+  await syncSectionChildren(langs.id)
+  await prisma.section.updateMany({ where: { slug: { in: ['iraqi-arabic', 'english'] } }, data: { showOnHome: true } })
   await section('university', L('دانشگاهی', 'University'), null, 1, { showOnHome: true, icon: 'i-lucide-graduation-cap' })
   await section('school', L('مدرسه', 'School'), null, 2, { icon: 'i-lucide-school' })
   await section('misc', L('متفرقه', 'Miscellaneous'), null, 3, { icon: 'i-lucide-shapes' })
@@ -128,8 +135,8 @@ async function main() {
       price: d.price, salePrice: d.salePrice ?? null, tags: ['عراقی', 'iraqi', 'arabic'], publishedAt: new Date(),
     }
     const p = await prisma.product.upsert({ where: { slug: d.slug }, create: { slug: d.slug, ...data }, update: data })
-    await prisma.productSection.upsert({ where: { productId_sectionId: { productId: p.id, sectionId: iraqi.id } }, create: { productId: p.id, sectionId: iraqi.id }, update: {} })
-    await prisma.$transaction(tx => writeAttributes(tx, p.id, anki.id, { language: 'ar-iq', translation: ['fa', 'en'], level: d.level, card_directions: d.directions }))
+    // No manual section needed: the language field places the deck under Languages › Iraqi Arabic
+    await prisma.$transaction(tx => writeAttributes(tx, p.id, anki.id, { language: 'iraqi-arabic', translation: ['persian', 'english'], level: d.level, card_directions: d.directions }))
 
     if (!(await prisma.productFile.count({ where: { productId: p.id, kind: 'MAIN' } }))) {
       const buf = readFileSync(new URL(`./seed-files/${d.file}`, import.meta.url))

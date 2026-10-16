@@ -11,6 +11,7 @@ export const sectionInput = z.object({
   showOnHome: z.boolean().default(false),
   sortOrder: z.number().int().default(0),
   parentId: z.string().nullish(),
+  childrenListId: z.string().nullish(),
 })
 
 /** A section may not be moved under itself or one of its children. */

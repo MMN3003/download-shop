@@ -1,7 +1,6 @@
 <script setup lang="ts">
 defineProps<{ product: any }>()
 const { l } = useL()
-const fmt = useAttrFormat()
 const localePath = useLocalePath()
 </script>
 
@@ -16,7 +15,7 @@ const localePath = useLocalePath()
     </div>
     <div class="flex flex-col gap-2 p-4 flex-1">
       <div class="flex flex-wrap gap-1">
-        <UBadge v-for="b in product.badges" :key="b.key" color="neutral" variant="soft" size="sm">{{ fmt(b, b.value) }}</UBadge>
+        <UBadge v-for="b in product.badges" :key="b.key" color="neutral" variant="soft" size="sm"><AttrValue :def="b" :value="b.value" /></UBadge>
       </div>
       <h3 class="font-bold leading-7 line-clamp-2">{{ l(product.title) }}</h3>
       <p v-if="product.shortDesc" class="text-sm text-muted line-clamp-2">{{ l(product.shortDesc) }}</p>

@@ -62,6 +62,14 @@ model Section {
   sortOrder   Int       @default(0)
   parentId    String?
   parent      Section?  @relation("SectionTree", fields: [parentId], references: [id], onDelete: SetNull)
+  /// Set on a parent section whose children are generated from a shared list
+  /// (e.g. "Languages" gets one child per language, kept in sync).
+  childrenListId String?
+  childrenList   OptionList? @relation("SectionChildrenList", fields: [childrenListId], references: [id], onDelete: SetNull)
+  /// Set on a generated child: the list item it stands for. Products whose
+  /// section-linked field has this value appear here automatically.
+  optionItemId   String?     @unique
+  optionItem     OptionItem? @relation(fields: [optionItemId], references: [id], onDelete: Cascade)
   children    Section[] @relation("SectionTree")
   products    ProductSection[]
   createdAt   DateTime  @default(now())
@@ -98,8 +106,13 @@ model AttributeDefinition {
   key           String
   name          Json
   kind          AttributeKind
-  /// For SELECT/MULTISELECT: [{ "value": "ar-iq", "label": { "fa": "...", "en": "..." } }]
+  /// For SELECT/MULTISELECT: [{ "value": "ar-iq", "label": { "fa": "...", "en": "..." }, "icon"?: "i-circle-flags-iq" }]
+  /// When optionListId is set this is a copy of the list, refreshed on every list change.
   options       Json?
+  optionListId  String?
+  optionList    OptionList?   @relation(fields: [optionListId], references: [id], onDelete: SetNull)
+  /// Products appear in the sections generated for the chosen value(s).
+  linksSections Boolean       @default(false)
   unit          Json?
   required      Boolean       @default(false)
   filterable    Boolean       @default(false)
@@ -232,4 +245,34 @@ model AdminLog {
   target    String?
   details   Json?
   createdAt DateTime @default(now())
+}
+
+/// A shared list of choices (languages, levels, subjects...) used by product
+/// fields and by generated sections, so menus and filters come from one place.
+model OptionList {
+  id         String                @id @default(cuid())
+  key        String                @unique
+  name       Json
+  items      OptionItem[]
+  attributes AttributeDefinition[]
+  sections   Section[]             @relation("SectionChildrenList")
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+}
+
+model OptionItem {
+  id        String     @id @default(cuid())
+  listId    String
+  list      OptionList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  /// Stable value stored on products; also the generated section's slug.
+  value     String
+  label     Json
+  /// Iconify name, e.g. i-circle-flags-iq for a flag
+  icon      String?
+  /// Optional uploaded image (public storage key), shown instead of the icon
+  image     String?
+  sortOrder Int        @default(0)
+  section   Section?
+
+  @@unique([listId, value])
 }

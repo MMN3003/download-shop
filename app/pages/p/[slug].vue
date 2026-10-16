@@ -3,7 +3,6 @@ const route = useRoute()
 const { data, error } = await useFetch(() => `/api/products/${encodeURIComponent(String(route.params.slug))}`)
 if (error.value) throw createError({ statusCode: error.value.statusCode ?? 500, statusMessage: error.value.statusMessage, fatal: true })
 const { l, date, bytes } = useL()
-const fmt = useAttrFormat()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
@@ -96,7 +95,7 @@ function buy() {
             <dl class="space-y-2 text-sm">
               <div v-for="a in details" :key="a.key" class="flex justify-between gap-4">
                 <dt class="text-muted">{{ l(a.name) }}</dt>
-                <dd class="font-medium text-end">{{ fmt(a, a.value) }}</dd>
+                <dd class="font-medium text-end"><AttrValue :def="a" :value="a.value" /></dd>
               </div>
               <div v-if="mainFile" class="flex justify-between gap-4">
                 <dt class="text-muted">{{ t('product.version') }}</dt><dd class="font-medium">{{ mainFile.version }}</dd>

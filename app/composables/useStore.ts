@@ -8,7 +8,7 @@ export interface FilterDef {
   key: string
   name: Record<string, string>
   kind: 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'SELECT' | 'MULTISELECT'
-  options: { value: string, label: Record<string, string> }[] | null
+  options: { value: string, label: Record<string, string>, icon?: string, image?: string }[] | null
   unit: Record<string, string> | null
 }
 

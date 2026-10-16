@@ -9,7 +9,7 @@ export default defineEventHandler(async () => {
   const sections = await prisma.section.findMany({ where: { showOnHome: true }, orderBy: { sortOrder: 'asc' } })
   // Count published products in each section including its sub-sections
   const counts = await Promise.all(sections.map(async s => prisma.product.count({
-    where: { status: 'PUBLISHED', sections: { some: { sectionId: { in: await sectionWithDescendants(s.id) } } } },
+    where: { AND: [{ status: 'PUBLISHED' }, await productsInSection(s.id)] },
   })))
   return {
     featured: featured.map(toProductCard),

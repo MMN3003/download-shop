@@ -8,6 +8,7 @@ const items = computed(() => [[
   { label: t('admin.products'), icon: 'i-lucide-package', to: localePath('/admin/products') },
   { label: t('admin.sections'), icon: 'i-lucide-folder-tree', to: localePath('/admin/sections') },
   { label: t('admin.types'), icon: 'i-lucide-shapes', to: localePath('/admin/types') },
+  { label: t('admin.lists'), icon: 'i-lucide-list', to: localePath('/admin/lists') },
   { label: t('admin.settings'), icon: 'i-lucide-settings', to: localePath('/admin/settings') },
 ], [
   { label: t('admin.viewStore'), icon: 'i-lucide-store', to: localePath('/'), target: '_blank' },

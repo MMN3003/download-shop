@@ -1,6 +1,7 @@
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
-const option = z.object({ value: z.string().trim().min(1), label: localized })
+const option = z.object({ value: z.string().trim().min(1), label: localized, icon: z.string().nullish(), image: z.string().nullish() })
 
 export const attributeInput = z.object({
   id: z.string().optional(),
@@ -8,6 +9,8 @@ export const attributeInput = z.object({
   name: localized,
   kind: z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'MULTISELECT']),
   options: z.array(option).nullish(),
+  optionListId: z.string().nullish(),
+  linksSections: z.boolean().default(false),
   unit: localizedOptional,
   required: z.boolean().default(false),
   filterable: z.boolean().default(false),
@@ -27,7 +30,7 @@ export const productTypeInput = z.object({
   const keys = v.attributes.map(a => a.key)
   if (new Set(keys).size !== keys.length) ctx.addIssue({ code: 'custom', message: 'Field keys must be unique', path: ['attributes'] })
   for (const [i, a] of v.attributes.entries()) {
-    if ((a.kind === 'SELECT' || a.kind === 'MULTISELECT') && !a.options?.length) {
+    if ((a.kind === 'SELECT' || a.kind === 'MULTISELECT') && !a.optionListId && !a.options?.length) {
       ctx.addIssue({ code: 'custom', message: 'Add at least one option', path: ['attributes', i, 'options'] })
     }
   }
@@ -42,7 +45,10 @@ export async function syncAttributes(productTypeId: string, attrs: ProductTypeIn
   await prisma.$transaction(async (tx) => {
     for (const old of existing) if (!keep.has(old.key)) await tx.attributeDefinition.delete({ where: { id: old.id } })
     for (const [i, a] of attrs.entries()) {
-      const data = { name: a.name, kind: a.kind, options: (a.options ?? undefined) as any, unit: (a.unit ?? undefined) as any, required: a.required, filterable: a.filterable, showAsBadge: a.showAsBadge, autoFilled: a.autoFilled, sortOrder: i }
+      const choice = a.kind === 'SELECT' || a.kind === 'MULTISELECT'
+      const optionListId = choice ? a.optionListId ?? null : null
+      const options = optionListId ? await listOptions(optionListId) : choice ? a.options : null
+      const data = { name: a.name, kind: a.kind, options: (options ?? Prisma.DbNull) as any, optionListId, linksSections: !!optionListId && a.linksSections, unit: (a.unit ?? undefined) as any, required: a.required, filterable: a.filterable, showAsBadge: a.showAsBadge, autoFilled: a.autoFilled, sortOrder: i }
       await tx.attributeDefinition.upsert({
         where: { productTypeId_key: { productTypeId, key: a.key } },
         create: { productTypeId, key: a.key, ...data },
