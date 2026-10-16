@@ -1,5 +1,7 @@
+@import "vazirmatn/Vazirmatn-Variable-font-face.css";
 @import "tailwindcss";
 @import "@nuxt/ui";
+@plugin "@tailwindcss/typography";
 
 @theme static {
   --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;

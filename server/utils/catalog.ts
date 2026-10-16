@@ -95,7 +95,7 @@ export async function applyPluginAnalysis(productId: string, analysis: PluginAna
   const product = await prisma.product.findUniqueOrThrow({ where: { id: productId } })
   const defs = await prisma.attributeDefinition.findMany({ where: { productTypeId: product.productTypeId, autoFilled: true } })
   // Save preview media to public storage and point the preview HTML at it
-  const previews = []
+  const previews: Prisma.ProductPreviewCreateManyInput[] = []
   for (const [i, pv] of analysis.previews.entries()) {
     const urls: Record<string, string> = {}
     for (const m of pv.media ?? []) {

@@ -1,75 +1,39 @@
-# Nuxt Minimal Starter
+# Digital downloads marketplace
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A general marketplace for any downloadable product (Anki decks, e-books, courses, audio, software…), Persian-first (RTL) with English.
+The first product type is **Anki decks**: uploading an `.apkg` fills the card count, sub-decks and media info automatically and builds a live card preview.
 
-## Setup
+Stack: Nuxt 4 (Vue 3), Nuxt UI, PostgreSQL + Prisma, nuxt-auth-utils, @nuxtjs/i18n.
 
-Make sure to install dependencies:
+## Run locally
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+cp .env.example .env        # set DATABASE_URL and NUXT_SESSION_PASSWORD
+docker compose up -d db     # or use your own PostgreSQL
+pnpm db:migrate             # create tables
+pnpm db:seed                # owner account, product types, sections, 3 demo decks
+pnpm dev                    # http://localhost:3000, admin at /admin
 ```
 
-## Development Server
+The seed prints the owner login (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`, default `admin@example.com` / `admin1234`; change it).
 
-Start the development server on `http://localhost:3000`:
+Production: `pnpm build && pnpm db:deploy && node .output/server/index.mjs`. Uploaded files go to `STORAGE_DIR` (`public/` for images and previews, `private/` for the files being sold); back it up with the database.
+
+## How it is organised
+
+- **Generic core** (`prisma/schema.prisma`): sections (tree), product types, custom attribute definitions per type, products, attribute values, files with versions, previews, settings.
+- **Product types** are created in the admin panel (Admin → Product types). Each type has its own fields (text, number, yes/no, single/multiple choice) and chooses which are required, used as filters, or shown as badges.
+- **Plugins** (`server/product-plugins/`) add smart behaviour to a type. A plugin reads the uploaded main file and returns attribute values and previews. `anki.ts` is the first; register new ones in `index.ts` and add a preview component in `app/components/ProductPreviews.vue`.
+- **Store settings** (name, logo, currency, default commission…) live in the database, so the same code can run any store.
+- Storefront: `app/pages/` (home, `/s/<section>`, `/p/<product>`, `/search`). Admin: `app/pages/admin/`. API: `server/api/`.
+
+## Tests
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+pnpm test
 ```
 
-## Production
+## Roadmap
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+See the plan: milestone 2 adds accounts with phone (SMS code) and email login, cart, ZarinPal and card-to-card / IBAN payments with receipt verification, the buyer library and secure downloads; milestone 3 adds the marketplace (sellers, commission agreements, payouts).

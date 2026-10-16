@@ -1,4 +1,16 @@
 import { z } from 'zod'
+import sanitizeHtml from 'sanitize-html'
+
+/** Descriptions are written by sellers and shown as HTML, so only safe tags survive. */
+export function cleanHtml(text: Record<string, string> | null | undefined) {
+  if (!text) return text
+  const opts: sanitizeHtml.IOptions = {
+    allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'h2', 'h3', 'h4'],
+    allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'width', 'height'], '*': ['dir'] },
+    allowedSchemes: ['http', 'https', 'mailto'],
+  }
+  return Object.fromEntries(Object.entries(text).map(([k, v]) => [k, sanitizeHtml(v, opts)]))
+}
 
 export const productInput = z.object({
   slug: slugSchema,
@@ -48,6 +60,7 @@ export async function saveProduct(id: string | null, input: ProductInput) {
   const prev = id ? await prisma.product.findUnique({ where: { id } }) : null
   const data = {
     ...fields,
+    description: cleanHtml(fields.description),
     publishedAt: fields.status === 'PUBLISHED' ? (prev?.publishedAt ?? new Date()) : prev?.publishedAt ?? null,
   } as any
   const product = await prisma.$transaction(async (tx) => {

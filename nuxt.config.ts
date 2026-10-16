@@ -13,7 +13,10 @@ export default defineNuxtConfig({
     ],
     detectBrowserLanguage: false,
   },
+  // Fonts are self-hosted (vazirmatn package): Google Fonts is unreliable in Iran
   fonts: {
-    families: [{ name: 'Vazirmatn', provider: 'google', weights: [400, 500, 700, 800] }],
+    providers: { google: false, googleicons: false, bunny: false, fontshare: false, fontsource: false, adobe: false },
   },
+  // Icons are bundled locally (@iconify-json/lucide) instead of fetched from the Iconify API
+  icon: { serverBundle: 'local', clientBundle: { scan: true } },
 })

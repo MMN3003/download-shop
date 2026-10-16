@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@adonisjs/hash": "9.1.1",
+    "@iconify-json/lucide": "^1.2.145",
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
     "@prisma/client": "^6.19.3",
@@ -23,8 +24,10 @@
     "jszip": "^3.10.2",
     "nuxt": "^4.6.1",
     "nuxt-auth-utils": "^0.5.31",
+    "sanitize-html": "^2.18.1",
     "sql.js": "^1.15.0",
     "tailwindcss": "^4.3.3",
+    "vazirmatn": "^33.0.3",
     "vue": "^3.5.43",
     "vue-router": "^5.4.0",
     "zod": "^4.6.7"
@@ -43,9 +46,13 @@
     ]
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/sanitize-html": "^2.16.2",
     "@types/sql.js": "^1.4.11",
     "prisma": "^6.19.3",
     "tsx": "^4.23.15",
-    "vitest": "^5.0.5"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5",
+    "vue-tsc": "^3.3.13"
   }
 }
