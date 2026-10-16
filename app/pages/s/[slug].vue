@@ -2,7 +2,7 @@
 const route = useRoute()
 const slug = computed(() => String(route.params.slug))
 const { data: section, error } = await useFetch(() => `/api/sections/${encodeURIComponent(slug.value)}`)
-if (error.value) throw createError({ statusCode: 404, statusMessage: 'Not found', fatal: true })
+if (error.value) throw createError({ statusCode: error.value.statusCode ?? 500, statusMessage: error.value.statusMessage, fatal: true })
 const { l } = useL()
 const { t } = useI18n()
 const localePath = useLocalePath()

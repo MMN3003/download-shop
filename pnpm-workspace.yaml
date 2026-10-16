@@ -1,0 +1,15 @@
+# Only install package versions that have been public for at least a day
+# (supply-chain safety; matches pnpm's default policy in newer versions)
+minimumReleaseAge: 1440
+
+# Packages allowed to run install scripts
+onlyBuiltDependencies:
+  - 'esbuild'
+  - 'prisma'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@parcel/watcher'
+  - 'sharp'
+  - 'vue-demi'
+  - '@tailwindcss/oxide'
+  - 'better-sqlite3'

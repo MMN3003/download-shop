@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const { data, error } = await useFetch(() => `/api/products/${encodeURIComponent(String(route.params.slug))}`)
-if (error.value) throw createError({ statusCode: 404, statusMessage: 'Not found', fatal: true })
+if (error.value) throw createError({ statusCode: error.value.statusCode ?? 500, statusMessage: error.value.statusMessage, fatal: true })
 const { l, date, bytes } = useL()
 const fmt = useAttrFormat()
 const { t, locale } = useI18n()
