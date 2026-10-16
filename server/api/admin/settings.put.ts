@@ -8,7 +8,18 @@ const body = z.object({
   currencyLabel: localized,
   defaultCommissionPercent: z.number().min(0).max(100),
   social: z.record(z.string(), z.string()).default({}),
-}).partial()
+  payments: z.object({
+    zarinpal: z.object({ enabled: z.boolean(), merchantId: z.string().trim(), sandbox: z.boolean() }),
+    card: z.object({ enabled: z.boolean(), cardNumber: z.string().trim(), holder: z.string().trim(), bank: z.string().trim() }),
+    iban: z.object({ enabled: z.boolean(), sheba: z.string().trim(), holder: z.string().trim(), bank: z.string().trim() }),
+  }),
+  downloadLimit: z.number().int().min(0),
+}).partial().superRefine((v, ctx) => {
+  const p = v.payments
+  if (p?.zarinpal.enabled && !/^[0-9a-f-]{36}$/i.test(p.zarinpal.merchantId) && !p.zarinpal.sandbox) ctx.addIssue({ code: 'custom', message: 'ZarinPal merchant ID should be 36 characters', path: ['payments'] })
+  if (p?.card.enabled && p.card.cardNumber.replace(/\D/g, '').length !== 16) ctx.addIssue({ code: 'custom', message: 'Card number must have 16 digits', path: ['payments'] })
+  if (p?.iban.enabled && !/^IR\d{24}$/.test(p.iban.sheba.replace(/\s/g, '').toUpperCase())) ctx.addIssue({ code: 'custom', message: 'Sheba must look like IR + 24 digits', path: ['payments'] })
+})
 
 export default defineEventHandler(async (event) => {
   const user = await requireOwner(event)

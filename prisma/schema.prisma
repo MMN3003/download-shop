@@ -33,6 +33,9 @@ model User {
   createdAt    DateTime  @default(now())
   seller       Seller?
   adminLogs    AdminLog[]
+  orders       Order[]
+  library      LibraryItem[]
+  downloads    Download[]
 }
 
 /// A seller in the marketplace. The store owner is also a seller.
@@ -164,6 +167,8 @@ model Product {
   sections      ProductSection[]
   attributes    ProductAttributeValue[]
   files         ProductFile[]
+  orderItems    OrderItem[]
+  libraryItems  LibraryItem[]
   previews      ProductPreview[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -275,4 +280,131 @@ model OptionItem {
   section   Section?
 
   @@unique([listId, value])
+}
+
+/// One-time login codes sent by SMS or email. Only a hash of the code is stored.
+model OtpCode {
+  id         String    @id @default(cuid())
+  /// Normalised phone (09xxxxxxxxx) or lower-case email
+  target     String
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  ip         String?
+  createdAt  DateTime  @default(now())
+
+  @@index([target, createdAt])
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  AWAITING_VERIFICATION
+  PAID
+  REJECTED
+  CANCELLED
+  REFUNDED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  /// Short number shown to buyers and support
+  number        Int         @unique @default(autoincrement())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  status        OrderStatus @default(PENDING_PAYMENT)
+  subtotal      Int
+  discount      Int         @default(0)
+  total         Int
+  currency      String
+  /// Key of the payment method chosen at checkout (zarinpal, card, iban...)
+  paymentMethod String?
+  paidAt        DateTime?
+  adminNote     String?
+  items         OrderItem[]
+  payments      Payment[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([status, createdAt])
+}
+
+/// A product in an order, with its price and the seller/store split frozen at purchase.
+model OrderItem {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId         String
+  product           Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  sellerId          String?
+  title             Json
+  unitPrice         Int
+  commissionPercent Float    @default(0)
+  /// Store's share and seller's share, filled when the order is paid
+  commission        Int      @default(0)
+  sellerNet         Int      @default(0)
+}
+
+enum PaymentStatus {
+  STARTED
+  SUBMITTED
+  PAID
+  FAILED
+  REJECTED
+}
+
+/// One payment attempt: an online gateway transaction or a manual transfer with a receipt.
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        String
+  amount        Int
+  status        PaymentStatus @default(STARTED)
+  /// Gateway fields
+  authority     String?       @unique
+  refId         String?
+  cardPan       String?
+  /// Manual transfer fields
+  receiptKey    String?
+  receiptHash   String?
+  payerCard4    String?
+  reference     String?
+  transferredAt DateTime?
+  rejectReason  String?
+  reviewedById  String?
+  reviewedAt    DateTime?
+  raw           Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([reference])
+  @@index([receiptHash])
+}
+
+/// What a buyer owns: one row per product, granted when an order is paid (or for free products).
+model LibraryItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderId   String?
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  downloads Download[]
+
+  @@unique([userId, productId])
+}
+
+model Download {
+  id            String      @id @default(cuid())
+  libraryItemId String
+  libraryItem   LibraryItem @relation(fields: [libraryItemId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileId        String
+  ip            String?
+  createdAt     DateTime    @default(now())
 }
