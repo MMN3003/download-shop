@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --ui-radius: 0.75rem;
+}
+
+/* Anki card preview: cards bring their own CSS, kept inside .anki-card */
+.anki-card {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  text-align: center;
+}
+.anki-card hr#answer { margin: 0.75rem 0; opacity: 0.3; }

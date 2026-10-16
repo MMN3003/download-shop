@@ -1,0 +1,235 @@
+// Generic digital-downloads marketplace.
+// The core only knows products, sections, product types and their custom
+// attributes. Anything specific to one kind of product (e.g. Anki decks)
+// lives in a product type plus an optional server-side plugin.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Text in several languages, stored as { "fa": "...", "en": "..." }.
+/// Used for every user-facing string so the store can run in any language.
+
+enum Role {
+  CUSTOMER
+  SELLER
+  SUPPORT
+  EDITOR
+  OWNER
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String?   @unique
+  phone        String?   @unique
+  passwordHash String?
+  name         String?
+  role         Role      @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  seller       Seller?
+  adminLogs    AdminLog[]
+}
+
+/// A seller in the marketplace. The store owner is also a seller.
+model Seller {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug        String    @unique
+  displayName String
+  bio         String?
+  avatar      String?
+  status      String    @default("approved") // pending | approved | suspended
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Section {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        Json
+  description Json?
+  icon        String?
+  banner      String?
+  seoTitle    Json?
+  seoDesc     Json?
+  showOnHome  Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  parentId    String?
+  parent      Section?  @relation("SectionTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Section[] @relation("SectionTree")
+  products    ProductSection[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+/// A kind of product (Anki deck, e-book, audio course...). Defines its own
+/// custom fields and, optionally, which plugin analyses its uploaded files.
+model ProductType {
+  id          String                @id @default(cuid())
+  key         String                @unique
+  name        Json
+  description Json?
+  plugin      String?               // e.g. "anki"; null = plain files
+  icon        String?
+  enabled     Boolean               @default(true)
+  attributes  AttributeDefinition[]
+  products    Product[]
+  createdAt   DateTime              @default(now())
+}
+
+enum AttributeKind {
+  TEXT
+  NUMBER
+  BOOLEAN
+  SELECT
+  MULTISELECT
+}
+
+model AttributeDefinition {
+  id            String        @id @default(cuid())
+  productTypeId String
+  productType   ProductType   @relation(fields: [productTypeId], references: [id], onDelete: Cascade)
+  key           String
+  name          Json
+  kind          AttributeKind
+  /// For SELECT/MULTISELECT: [{ "value": "ar-iq", "label": { "fa": "...", "en": "..." } }]
+  options       Json?
+  unit          Json?
+  required      Boolean       @default(false)
+  filterable    Boolean       @default(false)
+  showAsBadge   Boolean       @default(false)
+  /// Filled automatically by the type's plugin (still editable by admins).
+  autoFilled    Boolean       @default(false)
+  sortOrder     Int           @default(0)
+  values        ProductAttributeValue[]
+
+  @@unique([productTypeId, key])
+}
+
+enum ProductStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  HIDDEN
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  productTypeId String
+  productType   ProductType   @relation(fields: [productTypeId], references: [id])
+  sellerId      String?
+  seller        Seller?       @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  status        ProductStatus @default(DRAFT)
+  featured      Boolean       @default(false)
+  title         Json
+  shortDesc     Json?
+  description   Json?
+  learnPoints   Json?         // { fa: string[], en: string[] }
+  cover         String?
+  screenshots   String[]
+  /// Prices in the store's smallest currency unit (Toman by default).
+  price         Int           @default(0)
+  salePrice     Int?
+  saleStartsAt  DateTime?
+  saleEndsAt    DateTime?
+  isFree        Boolean       @default(false)
+  seoTitle      Json?
+  seoDesc       Json?
+  /// Normalised text used by search (titles, descriptions, tags).
+  searchText    String        @default("")
+  tags          String[]
+  salesCount    Int           @default(0)
+  ratingAvg     Float         @default(0)
+  ratingCount   Int           @default(0)
+  sections      ProductSection[]
+  attributes    ProductAttributeValue[]
+  files         ProductFile[]
+  previews      ProductPreview[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  publishedAt   DateTime?
+
+  @@index([status, createdAt])
+}
+
+model ProductSection {
+  productId String
+  sectionId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, sectionId])
+}
+
+/// One row per value; MULTISELECT attributes have several rows.
+model ProductAttributeValue {
+  id          String              @id @default(cuid())
+  productId   String
+  attributeId String
+  product     Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attribute   AttributeDefinition @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  valueText   String?
+  valueNumber Float?
+  valueBool   Boolean?
+
+  @@index([attributeId, valueText])
+  @@index([attributeId, valueNumber])
+  @@index([productId])
+}
+
+enum FileKind {
+  MAIN
+  SAMPLE
+  EXTRA
+}
+
+model ProductFile {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  kind       FileKind @default(MAIN)
+  version    String   @default("1.0")
+  changelog  String?
+  filename   String
+  size       Int
+  mimeType   String?
+  /// Key in private storage; never served directly.
+  storageKey String
+  isCurrent  Boolean  @default(true)
+  /// Raw result of the type plugin's analysis (for display / debugging).
+  analysis   Json?
+  createdAt  DateTime @default(now())
+}
+
+/// Preview items produced by plugins (Anki cards, PDF pages, audio clips...).
+/// `kind` selects the front-end component that renders `data`.
+model ProductPreview {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  kind      String
+  data      Json
+  position  Int     @default(0)
+}
+
+model Setting {
+  key   String @id
+  value Json
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  target    String?
+  details   Json?
+  createdAt DateTime @default(now())
+}
