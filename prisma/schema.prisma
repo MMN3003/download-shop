@@ -36,6 +36,8 @@ model User {
   orders       Order[]
   library      LibraryItem[]
   downloads    Download[]
+  requests     ProductRequest[]
+  requestMsgs  RequestMessage[]
 }
 
 /// A seller in the marketplace. The store owner is also a seller.
@@ -169,6 +171,7 @@ model Product {
   files         ProductFile[]
   orderItems    OrderItem[]
   libraryItems  LibraryItem[]
+  requests      ProductRequest[]
   previews      ProductPreview[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -407,4 +410,50 @@ model Download {
   fileId        String
   ip            String?
   createdAt     DateTime    @default(now())
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  DECLINED
+}
+
+/// A buyer asks for a product that doesn't exist yet (e.g. a deck from one
+/// language to another on a subject). Staff answer in its message thread.
+/// All text is stored and shown as plain text, never as HTML.
+model ProductRequest {
+  id          String           @id @default(cuid())
+  number      Int              @unique @default(autoincrement())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Values from the shared list named in settings (languages by default)
+  source      String
+  target      String
+  subject     String
+  details     String?
+  status      RequestStatus    @default(OPEN)
+  /// The product made for this request, once it exists
+  productId   String?
+  product     Product?         @relation(fields: [productId], references: [id], onDelete: SetNull)
+  /// Unread flags for the badge counts on both sides
+  unreadStaff Boolean          @default(true)
+  unreadUser  Boolean          @default(false)
+  messages    RequestMessage[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status, updatedAt])
+  @@index([userId, createdAt])
+}
+
+model RequestMessage {
+  id        String         @id @default(cuid())
+  requestId String
+  request   ProductRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  fromStaff Boolean        @default(false)
+  body      String
+  createdAt DateTime       @default(now())
 }

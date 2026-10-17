@@ -43,6 +43,12 @@ pnpm test
 - **Library and downloads:** buyers download from "My library" through short-lived signed links (`/dl/<token>`), with a per-product download limit set in Settings.
 - To try ZarinPal locally without the real gateway: `node tests/zarinpal-mock.mjs` and start the app with `ZARINPAL_BASE_URL=http://localhost:4010`.
 
+## Requests and safety
+
+- **Product requests** (`/requests`, Admin → Requests): a buyer picks "from" and "to" values from a shared list (Languages by default, set in Settings), writes a subject and details, and chats with support. Staff can set the status and link the product made for it; the buyer gets an SMS/email on each answer.
+- **User text is plain text only:** `shared/utils/plain-text.ts` strips tags, control and bidi-override characters on the server, and pages show it with Vue's escaped `{{ }}` (never `v-html`). The only HTML shown is product descriptions, cleaned with sanitize-html.
+- **Uploads are checked by their bytes**, not their name or claimed type (`server/utils/file-type.ts`). Uploaded and preview files are served with `nosniff` and a sandboxing CSP, so even an SVG with a script can't run.
+
 ## Roadmap
 
 See the plan: milestone 3 adds the marketplace (sellers, commission agreements, payouts).

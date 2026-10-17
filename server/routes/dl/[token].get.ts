@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     'content-length': data.length,
     'content-disposition': `attachment; filename*=UTF-8''${encodeURIComponent(file.filename)}`,
     'cache-control': 'private, no-store',
+    'x-content-type-options': 'nosniff',
   })
   return data
 })

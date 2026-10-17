@@ -16,6 +16,8 @@ export const DEFAULT_SETTINGS = {
   },
   /** How many times a buyer may download each product (0 = unlimited) */
   downloadLimit: 10,
+  /** Product requests: buyers ask for something from one list value to another (e.g. Arabic → Persian) */
+  requests: { enabled: true, listKey: 'languages', perDay: 3 },
 }
 
 export type StoreSettings = typeof DEFAULT_SETTINGS

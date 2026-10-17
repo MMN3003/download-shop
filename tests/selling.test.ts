@@ -29,3 +29,20 @@ describe('download links', () => {
     expect(readDownloadToken('garbage')).toBeNull()
   })
 })
+
+describe('plain text from users', async () => {
+  const { plainText } = await import('../shared/utils/plain-text')
+  it('removes tags, scripts and event handlers', () => {
+    expect(plainText('<script>alert(1)</script>hi')).toBe('alert(1)hi')
+    expect(plainText('<img src=x onerror=alert(1)>ok')).toBe('ok')
+    expect(plainText('<a href="javascript:alert(1)">x</a>')).toBe('x')
+    expect(plainText('a<!-- c -->b')).toBe('ab')
+  })
+  it('keeps Persian text, half-spaces and line breaks', () => {
+    expect(plainText('می‌خواهم\r\nفلش‌کارت')).toBe('می‌خواهم\nفلش‌کارت')
+  })
+  it('drops direction overrides and caps length', () => {
+    expect(plainText('abc‮def')).toBe('abcdef')
+    expect(plainText('x'.repeat(50), 10)).toHaveLength(10)
+  })
+})

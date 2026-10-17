@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     include: { product: { include: productInclude }, downloads: { orderBy: { createdAt: 'desc' } } },
     orderBy: { createdAt: 'desc' },
   })
+  const orders = await prisma.order.findMany({ where: { id: { in: items.map(i => i.orderId).filter(Boolean) as string[] } }, select: { id: true, number: true } })
   return items.map((it) => {
     const files = it.product.files.filter(f => f.kind !== 'SAMPLE')
     const last = it.downloads[0]?.createdAt
@@ -14,6 +15,8 @@ export default defineEventHandler(async (event) => {
       productId: it.productId,
       product: toProductCard(it.product),
       addedAt: it.createdAt,
+      orderNumber: orders.find(o => o.id === it.orderId)?.number ?? null,
+      lastDownloadedAt: last ?? null,
       files: files.map(f => ({ id: f.id, kind: f.kind, filename: f.filename, size: f.size, version: f.version, changelog: f.changelog, updatedAt: f.createdAt })),
       downloadsUsed: it.downloads.length,
       downloadLimit,
