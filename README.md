@@ -35,6 +35,14 @@ Production: `pnpm build && pnpm db:deploy && node .output/server/index.mjs`. Upl
 pnpm test
 ```
 
+## Selling (milestone 2)
+
+- **Accounts:** log in with a mobile number (SMS code) or email (code or password). A phone and an email can be linked to one account from "My account". Without `SMS_PROVIDER`/`SMTP_URL`, codes are printed in the server log.
+- **Cart and checkout:** the cart lives in a cookie; checkout needs login. Products already owned are skipped; free products go straight to the library.
+- **Payment methods** (`server/payment-methods/`), each switched on in Admin → Settings: ZarinPal (online, API v4), card-to-card and IBAN (buyer uploads a receipt, an admin approves or rejects it in Admin → Orders). Every path ends in `markOrderPaid`, which is idempotent and records the store commission per item.
+- **Library and downloads:** buyers download from "My library" through short-lived signed links (`/dl/<token>`), with a per-product download limit set in Settings.
+- To try ZarinPal locally without the real gateway: `node tests/zarinpal-mock.mjs` and start the app with `ZARINPAL_BASE_URL=http://localhost:4010`.
+
 ## Roadmap
 
-See the plan: milestone 2 adds accounts with phone (SMS code) and email login, cart, ZarinPal and card-to-card / IBAN payments with receipt verification, the buyer library and secure downloads; milestone 3 adds the marketplace (sellers, commission agreements, payouts).
+See the plan: milestone 3 adds the marketplace (sellers, commission agreements, payouts).

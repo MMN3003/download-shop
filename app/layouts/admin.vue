@@ -1,15 +1,21 @@
 <script setup lang="ts">
 const { t, locale, locales, setLocale } = useI18n()
 const localePath = useLocalePath()
-const { clear } = useUserSession()
+const { clear, user } = useUserSession()
+const { data: stats } = await useFetch<any>('/api/admin/stats', { key: 'admin-stats' })
+const role = computed(() => (user.value as any)?.role)
 
 const items = computed(() => [[
   { label: t('admin.dashboard'), icon: 'i-lucide-gauge', to: localePath('/admin'), exact: true },
-  { label: t('admin.products'), icon: 'i-lucide-package', to: localePath('/admin/products') },
-  { label: t('admin.sections'), icon: 'i-lucide-folder-tree', to: localePath('/admin/sections') },
-  { label: t('admin.types'), icon: 'i-lucide-shapes', to: localePath('/admin/types') },
-  { label: t('admin.lists'), icon: 'i-lucide-list', to: localePath('/admin/lists') },
-  { label: t('admin.settings'), icon: 'i-lucide-settings', to: localePath('/admin/settings') },
+  { label: t('admin.orders'), icon: 'i-lucide-receipt', to: localePath('/admin/orders'), badge: stats.value?.pendingReceipts || undefined },
+  // Support staff only handle orders; catalog and settings are for owner/editors
+  ...(['OWNER', 'EDITOR'].includes(role.value) ? [
+    { label: t('admin.products'), icon: 'i-lucide-package', to: localePath('/admin/products') },
+    { label: t('admin.sections'), icon: 'i-lucide-folder-tree', to: localePath('/admin/sections') },
+    { label: t('admin.types'), icon: 'i-lucide-shapes', to: localePath('/admin/types') },
+    { label: t('admin.lists'), icon: 'i-lucide-list', to: localePath('/admin/lists') },
+  ] : []),
+  ...(role.value === 'OWNER' ? [{ label: t('admin.settings'), icon: 'i-lucide-settings', to: localePath('/admin/settings') }] : []),
 ], [
   { label: t('admin.viewStore'), icon: 'i-lucide-store', to: localePath('/'), target: '_blank' },
 ]])

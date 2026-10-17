@@ -36,8 +36,30 @@ useHead({
   }],
 })
 
-function buy() {
-  toast.add({ title: t('product.buySoon'), icon: 'i-lucide-clock' })
+const cart = useCart()
+const { loggedIn } = useUserSession()
+const owned = ref(!!data.value?.owned)
+const isFreeNow = computed(() => p.value.finalPrice === 0)
+const claiming = ref(false)
+
+function addToCart() {
+  cart.add(p.value.id)
+  toast.add({ title: t('product.added'), icon: 'i-lucide-shopping-cart', actions: [{ label: t('nav.cart'), to: localePath('/cart') }] })
+}
+function buyNow() {
+  cart.add(p.value.id)
+  navigateTo(localePath('/cart'))
+}
+async function claim() {
+  if (!loggedIn.value) return navigateTo({ path: localePath('/login'), query: { redirect: route.fullPath } })
+  claiming.value = true
+  try {
+    await $fetch(`/api/products/${p.value.slug}/claim`, { method: 'POST' })
+    owned.value = true
+    toast.add({ title: t('product.claimed'), color: 'success', actions: [{ label: t('nav.library'), to: localePath('/library') }] })
+  }
+  catch (e: any) { toast.add({ title: apiError(e), color: 'error' }) }
+  finally { claiming.value = false }
 }
 </script>
 
@@ -90,7 +112,17 @@ function buy() {
         <UCard>
           <div class="space-y-4">
             <PriceTag :price="p.price" :final-price="p.finalPrice" :is-free="p.isFree" size="lg" />
-            <UButton block size="xl" icon="i-lucide-shopping-cart" :label="t('product.buy')" @click="buy" />
+            <template v-if="owned">
+              <UAlert color="success" variant="subtle" icon="i-lucide-circle-check" :title="t('product.owned')" />
+              <UButton block size="xl" icon="i-lucide-download" :label="t('product.openLibrary')" :to="localePath('/library')" />
+            </template>
+            <UButton v-else-if="isFreeNow" block size="xl" icon="i-lucide-gift" :loading="claiming" :label="t('product.getFree')" @click="claim" />
+            <template v-else>
+              <UButton block size="xl" icon="i-lucide-shopping-bag" :label="t('product.buyNow')" @click="buyNow" />
+              <UButton v-if="cart.has(p.id)" block color="neutral" variant="outline" icon="i-lucide-check" :label="t('product.inCart')" :to="localePath('/cart')" />
+              <UButton v-else block color="neutral" variant="outline" icon="i-lucide-shopping-cart" :label="t('product.addToCart')" @click="addToCart" />
+            </template>
+            <UButton v-if="p.hasSample" block color="neutral" variant="ghost" icon="i-lucide-file-down" :label="t('product.sample')" :href="`/api/products/${p.slug}/sample`" external />
             <USeparator />
             <dl class="space-y-2 text-sm">
               <div v-for="a in details" :key="a.key" class="flex justify-between gap-4">
@@ -121,7 +153,9 @@ function buy() {
     <!-- Mobile: keep price and buy button in reach -->
     <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-default bg-default/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
       <PriceTag :price="p.price" :final-price="p.finalPrice" :is-free="p.isFree" />
-      <UButton icon="i-lucide-shopping-cart" :label="t('product.buy')" @click="buy" />
+      <UButton v-if="owned" icon="i-lucide-download" :label="t('product.openLibrary')" :to="localePath('/library')" />
+      <UButton v-else-if="isFreeNow" icon="i-lucide-gift" :loading="claiming" :label="t('product.getFree')" @click="claim" />
+      <UButton v-else icon="i-lucide-shopping-bag" :label="t('product.buyNow')" @click="buyNow" />
     </div>
 
     <section v-if="data.related.length">

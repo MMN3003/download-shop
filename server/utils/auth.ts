@@ -19,3 +19,18 @@ export const requireOwner = (event: H3Event) => requireRole(event, ['OWNER'])
 export async function logAdmin(userId: string, action: string, target?: string, details?: unknown) {
   await prisma.adminLog.create({ data: { userId, action, target, details: details as any } })
 }
+
+/** The signed-in buyer (any role), or 401. */
+export async function requireUser(event: H3Event) {
+  const session = await getUserSession(event)
+  const user = session.user as { id: string, role: AppRole } | undefined
+  if (!user) throw createError({ statusCode: 401, message: 'Login required' })
+  return user
+}
+
+export async function startSession(event: H3Event, user: { id: string, role: string, name: string | null, email: string | null, phone: string | null }, extra: Record<string, unknown> = {}) {
+  await replaceUserSession(event, { user: { id: user.id, role: user.role, name: user.name || user.email || user.phone }, ...extra })
+}
+
+/** Support staff verify payments; the owner can too. */
+export const requireSupport = (event: H3Event) => requireRole(event, ['OWNER', 'SUPPORT'])

@@ -10,7 +10,7 @@ async function save() {
   saving.value = true
   const { logoUrl: _l, ...body } = form.value
   try {
-    await $fetch('/api/admin/settings', { method: 'PUT', body: { ...body, defaultCommissionPercent: Number(body.defaultCommissionPercent) } })
+    await $fetch('/api/admin/settings', { method: 'PUT', body: { ...body, defaultCommissionPercent: Number(body.defaultCommissionPercent), downloadLimit: Number(body.downloadLimit) } })
     await refreshNuxtData('store')
     toast.add({ title: t('admin.saved'), color: 'success' })
   }
@@ -47,6 +47,41 @@ async function save() {
               <UInput v-model="form.social.instagram" dir="ltr" placeholder="https://instagram.com/…" icon="i-lucide-instagram" />
               <UInput v-model="form.social.telegram" dir="ltr" placeholder="https://t.me/…" icon="i-lucide-send" />
             </div>
+          </UFormField>
+        </div>
+      </UCard>
+
+      <UCard class="max-w-3xl">
+        <template #header><h2 class="font-bold">{{ t('admin.settingsPage.payments') }}</h2></template>
+        <div class="space-y-6">
+          <div class="space-y-3">
+            <USwitch v-model="form.payments.zarinpal.enabled" :label="t('admin.settingsPage.zarinpal')" />
+            <div v-if="form.payments.zarinpal.enabled" class="grid gap-3 sm:grid-cols-[1fr_auto] items-end">
+              <UFormField :label="t('admin.settingsPage.merchantId')"><UInput v-model="form.payments.zarinpal.merchantId" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full" /></UFormField>
+              <USwitch v-model="form.payments.zarinpal.sandbox" :label="t('admin.settingsPage.sandbox')" />
+            </div>
+          </div>
+          <USeparator />
+          <div class="space-y-3">
+            <USwitch v-model="form.payments.card.enabled" :label="t('admin.settingsPage.card')" />
+            <div v-if="form.payments.card.enabled" class="grid gap-3 sm:grid-cols-3">
+              <UFormField :label="t('admin.settingsPage.cardNumber')"><UInput v-model="form.payments.card.cardNumber" dir="ltr" inputmode="numeric" class="w-full" /></UFormField>
+              <UFormField :label="t('admin.settingsPage.holder')"><UInput v-model="form.payments.card.holder" class="w-full" /></UFormField>
+              <UFormField :label="t('admin.settingsPage.bank')"><UInput v-model="form.payments.card.bank" class="w-full" /></UFormField>
+            </div>
+          </div>
+          <USeparator />
+          <div class="space-y-3">
+            <USwitch v-model="form.payments.iban.enabled" :label="t('admin.settingsPage.iban')" />
+            <div v-if="form.payments.iban.enabled" class="grid gap-3 sm:grid-cols-3">
+              <UFormField :label="t('admin.settingsPage.sheba')"><UInput v-model="form.payments.iban.sheba" dir="ltr" placeholder="IR…" class="w-full" /></UFormField>
+              <UFormField :label="t('admin.settingsPage.holder')"><UInput v-model="form.payments.iban.holder" class="w-full" /></UFormField>
+              <UFormField :label="t('admin.settingsPage.bank')"><UInput v-model="form.payments.iban.bank" class="w-full" /></UFormField>
+            </div>
+          </div>
+          <USeparator />
+          <UFormField :label="t('admin.settingsPage.downloadLimit')" :help="t('admin.settingsPage.downloadLimitHint')">
+            <UInput v-model.number="form.downloadLimit" type="number" min="0" dir="ltr" class="w-32" />
           </UFormField>
         </div>
       </UCard>
