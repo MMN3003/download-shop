@@ -18,6 +18,8 @@ export const DEFAULT_SETTINGS = {
   downloadLimit: 10,
   /** Product requests: buyers ask for something from one list value to another (e.g. Arabic → Persian) */
   requests: { enabled: true, listKey: 'languages', perDay: 3 },
+  /** Marketplace: who may apply to sell, and when seller money can be paid out */
+  marketplace: { sellersOpen: true, payoutHoldDays: 14, minPayout: 100000 },
 }
 
 export type StoreSettings = typeof DEFAULT_SETTINGS

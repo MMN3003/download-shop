@@ -167,7 +167,7 @@ export function toPublicProduct(p: ProductWithAll) {
     },
     attributes: attributeMap(p),
     sections: p.sections.map(s => ({ slug: s.section.slug, name: s.section.name })),
-    seller: p.seller,
+    seller: p.seller && { ...p.seller, avatar: publicUrl(p.seller.avatar) },
     previews: p.previews.map(pv => ({ kind: pv.kind, data: pv.data })),
     files: p.files.map(f => ({ kind: f.kind, version: f.version, filename: f.filename, size: f.size, changelog: f.changelog, createdAt: f.createdAt })),
   }

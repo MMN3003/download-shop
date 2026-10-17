@@ -14,6 +14,9 @@ const userMenu = computed(() => [[
   { label: t('nav.requests'), icon: 'i-lucide-message-square-plus', to: localePath('/requests') },
   { label: t('nav.account'), icon: 'i-lucide-user', to: localePath('/account') },
   ...(isAdmin.value ? [{ label: t('nav.admin'), icon: 'i-lucide-layout-dashboard', to: localePath('/admin') }] : []),
+  (user.value as any)?.role === 'SELLER'
+    ? { label: t('seller.panel'), icon: 'i-lucide-store', to: localePath('/admin') }
+    : { label: t('nav.sell'), icon: 'i-lucide-store', to: localePath('/sell') },
 ], [
   { label: t('nav.logout'), icon: 'i-lucide-log-out', onSelect: logout },
 ]])
@@ -87,6 +90,7 @@ useSeoMeta({ titleTemplate: s => (s ? `${s} | ` : '') + l(store.value?.settings.
       </template>
       <template #right>
         <UButton color="neutral" variant="link" size="sm" icon="i-lucide-message-square-plus" :label="t('nav.requests')" :to="localePath('/requests')" />
+        <UButton color="neutral" variant="link" size="sm" icon="i-lucide-store" :label="t('nav.sell')" :to="localePath('/sell')" />
         <UButton v-if="store?.settings.social.instagram" icon="i-lucide-instagram" color="neutral" variant="ghost" :to="store.settings.social.instagram" target="_blank" aria-label="Instagram" />
         <UButton v-if="store?.settings.social.telegram" icon="i-lucide-send" color="neutral" variant="ghost" :to="store.settings.social.telegram" target="_blank" aria-label="Telegram" />
 

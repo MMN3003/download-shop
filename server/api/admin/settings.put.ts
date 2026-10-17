@@ -14,6 +14,7 @@ const body = z.object({
     iban: z.object({ enabled: z.boolean(), sheba: z.string().trim(), holder: z.string().trim(), bank: z.string().trim() }),
   }),
   downloadLimit: z.number().int().min(0),
+  marketplace: z.object({ sellersOpen: z.boolean(), payoutHoldDays: z.number().int().min(0).max(90), minPayout: z.number().int().min(0) }),
   requests: z.object({ enabled: z.boolean(), listKey: z.string().trim().min(1), perDay: z.number().int().min(1).max(100) }),
 }).partial().superRefine((v, ctx) => {
   const p = v.payments

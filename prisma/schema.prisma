@@ -38,20 +38,30 @@ model User {
   downloads    Download[]
   requests     ProductRequest[]
   requestMsgs  RequestMessage[]
+  reports      ContentReport[]
 }
 
 /// A seller in the marketplace. The store owner is also a seller.
 model Seller {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  slug        String    @unique
-  displayName String
-  bio         String?
-  avatar      String?
-  status      String    @default("approved") // pending | approved | suspended
-  createdAt   DateTime  @default(now())
-  products    Product[]
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug          String    @unique
+  displayName   String
+  bio           String?
+  avatar        String?
+  status        String    @default("approved") // pending | approved | rejected | suspended
+  /// Payout account
+  sheba         String?
+  accountHolder String?
+  termsAt       DateTime?
+  /// Trusted sellers publish without the review queue
+  trusted       Boolean   @default(false)
+  reviewNote    String?
+  createdAt     DateTime  @default(now())
+  products      Product[]
+  agreements    CommissionAgreement[]
+  payouts       Payout[]
 }
 
 model Section {
@@ -77,6 +87,7 @@ model Section {
   optionItem     OptionItem? @relation(fields: [optionItemId], references: [id], onDelete: Cascade)
   children    Section[] @relation("SectionTree")
   products    ProductSection[]
+  agreements  CommissionAgreement[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -172,6 +183,10 @@ model Product {
   orderItems    OrderItem[]
   libraryItems  LibraryItem[]
   requests      ProductRequest[]
+  agreements    CommissionAgreement[]
+  reports       ContentReport[]
+  /// Why the last review rejected it (shown to the seller)
+  reviewNote    String?
   previews      ProductPreview[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -456,4 +471,73 @@ model RequestMessage {
   fromStaff Boolean        @default(false)
   body      String
   createdAt DateTime       @default(now())
+}
+
+enum AgreementStatus {
+  PROPOSED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+/// A commission rate for one seller, negotiated or set by the store.
+/// Scope: the whole seller, one section, or one product (most specific wins).
+model CommissionAgreement {
+  id          String          @id @default(cuid())
+  sellerId    String
+  seller      Seller          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  percent     Float
+  sectionId   String?
+  section     Section?        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  startsAt    DateTime        @default(now())
+  endsAt      DateTime?
+  status      AgreementStatus @default(PROPOSED)
+  /// Who made this offer: the seller, or the store (a counter-offer or a direct rate)
+  proposedBy  String          // seller | store
+  note        String?
+  answer      String?
+  decidedById String?
+  decidedAt   DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([sellerId, status])
+}
+
+enum PayoutStatus {
+  REQUESTED
+  PAID
+  REJECTED
+}
+
+model Payout {
+  id        String       @id @default(cuid())
+  sellerId  String
+  seller    Seller       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  amount    Int
+  status    PayoutStatus @default(REQUESTED)
+  sheba     String
+  reference String?
+  note      String?
+  paidAt    DateTime?
+  createdAt DateTime     @default(now())
+
+  @@index([sellerId, status])
+}
+
+/// "Report this product": copyright, wrong content, etc.
+model ContentReport {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  reason    String   // copyright | wrong | offensive | other
+  details   String?
+  contact   String?
+  status    String   @default("open") // open | resolved | dismissed
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
 }

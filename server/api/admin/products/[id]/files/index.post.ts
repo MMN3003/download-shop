@@ -6,8 +6,8 @@ const MAX_BYTES = 500 * 1024 * 1024
  * plugin, is analysed to fill automatic fields and previews.
  */
 export default defineEventHandler(async (event) => {
-  const user = await requireEditor(event)
-  const productId = getRouterParam(event, 'id')!
+  const access = await catalogAccess(event)
+  const productId = (await productForAccess(access, getRouterParam(event, 'id')!)).id
   const product = await prisma.product.findUnique({ where: { id: productId }, include: { productType: true } })
   if (!product) throw createError({ statusCode: 404, message: 'Product not found' })
 
@@ -35,7 +35,10 @@ export default defineEventHandler(async (event) => {
     await applyPluginAnalysis(productId, analysis)
     await refreshSearchText(productId)
   }
-  await logAdmin(user.id, 'product.file.upload', productId, { file: row.id, kind })
+  // A new file from an untrusted seller is checked before buyers get it
+  const status = sellerStatus(access, product.status, product)
+  if (status !== product.status) await prisma.product.update({ where: { id: productId }, data: { status: status as any } })
+  await logAdmin(access.user.id, 'product.file.upload', productId, { file: row.id, kind })
   const { storageKey: _k, ...out } = row
   return { file: out, analysis: analysis ? { attributes: analysis.attributes, previews: analysis.previews.length } : null }
 })

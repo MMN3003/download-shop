@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
-  await requireEditor(event)
+  const access = await catalogAccess(event)
+  const { id } = await productForAccess(access, getRouterParam(event, 'id')!)
   const p = await prisma.product.findUnique({
-    where: { id: getRouterParam(event, 'id')! },
+    where: { id },
     include: { ...productInclude, files: { orderBy: { createdAt: 'desc' } } },
   })
   if (!p) throw createError({ statusCode: 404, message: 'Not found' })

@@ -4,7 +4,8 @@ const { t } = useI18n()
 const { l, money, date } = useL()
 const localePath = useLocalePath()
 const q = ref('')
-const status = ref('__all')
+const route = useRoute()
+const status = ref(String(route.query.status || '__all'))
 const page = ref(1)
 const query = computed(() => ({ q: q.value || undefined, status: status.value === '__all' ? undefined : status.value, page: page.value }))
 const { data } = await useFetch<any>('/api/admin/products', { query, watch: [query] })
@@ -37,7 +38,7 @@ const color = (s: string) => ({ PUBLISHED: 'success', IN_REVIEW: 'warning', DRAF
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium truncate">{{ l(p.title) }}</p>
-                <p class="text-xs text-muted">{{ l(p.type) }} · {{ p.seller ?? '—' }} · {{ date(p.updatedAt) }}</p>
+                <p class="text-xs text-muted">{{ l(p.type) }} · {{ p.seller ?? '—' }} · {{ date(p.updatedAt) }}<span v-if="p.salesCount"> · {{ t('seller.sales', { n: p.salesCount }) }}</span></p>
               </div>
               <UBadge v-if="p.featured" icon="i-lucide-star" color="warning" variant="soft" size="sm" />
               <UBadge v-if="!p.files" icon="i-lucide-file-x" color="error" variant="soft" size="sm" />

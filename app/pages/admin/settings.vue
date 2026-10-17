@@ -12,7 +12,7 @@ async function save() {
   saving.value = true
   const { logoUrl: _l, ...body } = form.value
   try {
-    await $fetch('/api/admin/settings', { method: 'PUT', body: { ...body, defaultCommissionPercent: Number(body.defaultCommissionPercent), downloadLimit: Number(body.downloadLimit), requests: { ...body.requests, perDay: Number(body.requests.perDay) } } })
+    await $fetch('/api/admin/settings', { method: 'PUT', body: { ...body, defaultCommissionPercent: Number(body.defaultCommissionPercent), downloadLimit: Number(body.downloadLimit), requests: { ...body.requests, perDay: Number(body.requests.perDay) }, marketplace: { ...body.marketplace, payoutHoldDays: Number(body.marketplace.payoutHoldDays), minPayout: Number(body.marketplace.minPayout) } } })
     await refreshNuxtData('store')
     toast.add({ title: t('admin.saved'), color: 'success' })
   }
@@ -97,6 +97,17 @@ async function save() {
               <USelect v-model="form.requests.listKey" :items="(lists ?? []).map(x => ({ label: l(x.name), value: x.key }))" class="w-full" />
             </UFormField>
             <UFormField :label="t('admin.settingsPage.requestsPerDay')"><UInput v-model.number="form.requests.perDay" type="number" min="1" dir="ltr" class="w-32" /></UFormField>
+          </div>
+        </div>
+      </UCard>
+
+      <UCard class="max-w-3xl">
+        <template #header><h2 class="font-bold">{{ t('admin.settingsPage.marketplace') }}</h2></template>
+        <div class="space-y-4">
+          <USwitch v-model="form.marketplace.sellersOpen" :label="t('admin.settingsPage.sellersOpen')" />
+          <div class="grid gap-3 sm:grid-cols-2">
+            <UFormField :label="t('admin.settingsPage.holdDays')" :help="t('admin.settingsPage.holdDaysHint')"><UInput v-model.number="form.marketplace.payoutHoldDays" type="number" min="0" max="90" dir="ltr" class="w-32" /></UFormField>
+            <UFormField :label="t('admin.settingsPage.minPayout')"><UInput v-model.number="form.marketplace.minPayout" type="number" min="0" dir="ltr" class="w-40" /></UFormField>
           </div>
         </div>
       </UCard>

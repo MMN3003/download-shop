@@ -139,7 +139,7 @@ async function claim() {
                 <dt class="text-muted">{{ t('product.updated') }}</dt><dd class="font-medium">{{ date(p.updatedAt) }}</dd>
               </div>
               <div v-if="p.seller" class="flex justify-between gap-4">
-                <dt class="text-muted">{{ t('product.seller') }}</dt><dd class="font-medium">{{ p.seller.displayName }}</dd>
+                <dt class="text-muted">{{ t('product.seller') }}</dt><dd class="font-medium"><NuxtLink :to="localePath(`/seller/${p.seller.slug}`)" class="text-primary hover:underline">{{ p.seller.displayName }}</NuxtLink></dd>
               </div>
             </dl>
           </div>
@@ -147,6 +147,7 @@ async function claim() {
         <div v-if="p.tags.length" class="flex flex-wrap gap-1">
           <UBadge v-for="tag in p.tags" :key="tag" color="neutral" variant="outline" size="sm">#{{ tag }}</UBadge>
         </div>
+        <ReportProduct :slug="p.slug" />
       </aside>
     </div>
 

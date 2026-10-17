@@ -2,7 +2,7 @@ const ALLOWED = ['.png', '.jpg', '.jpeg', '.webp', '.gif']
 
 /** Upload a public image (cover, screenshot, banner, logo). Returns its storage key and URL. */
 export default defineEventHandler(async (event) => {
-  await requireEditor(event)
+  await catalogAccess(event)
   const parts = await readMultipartFormData(event)
   const file = parts?.find(p => p.name === 'file' && p.filename)
   if (!file) throw createError({ statusCode: 400, message: 'No file uploaded' })

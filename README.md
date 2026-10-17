@@ -49,6 +49,16 @@ pnpm test
 - **User text is plain text only:** `shared/utils/plain-text.ts` strips tags, control and bidi-override characters on the server, and pages show it with Vue's escaped `{{ }}` (never `v-html`). The only HTML shown is product descriptions, cleaned with sanitize-html.
 - **Uploads are checked by their bytes**, not their name or claimed type (`server/utils/file-type.ts`). Uploaded and preview files are served with `nosniff` and a sandboxing CSP, so even an SVG with a script can't run.
 
+## Marketplace (milestone 3)
+
+- **Becoming a seller:** anyone with an account applies at `/sell` (shop name, address, terms, optional commission proposal). The owner approves in Admin → Sellers, which turns the account into a seller; rejecting or suspending turns it back (suspending also hides the shop's products). Sign-up can be closed in Settings → Marketplace.
+- **Seller panel:** sellers use the same `/admin` with their own menu: dashboard, their products only, earnings, commission and shop profile. `server/utils/marketplace.ts` (`catalogAccess`, `productForAccess`) keeps them to their own products; roles are read from the database on every admin request, so a change applies without logging in again.
+- **Review queue:** a seller's "publish" (and any later edit or new file on a live product) goes to *In review*; editors publish it or send it back with a note the seller sees. "Trusted" sellers skip the queue. Featuring stays with staff. Products with orders can only be hidden, not deleted.
+- **Commission:** the default is in Settings. Agreements can cover the whole shop, one section or one product, with start and end dates; the most specific one in force wins (`commissionPercent`). Sellers propose, the owner accepts, rejects, counter-offers or sets a rate directly. The rate at sale time is frozen on each order line.
+- **Payouts:** earnings become withdrawable after the holding period (Settings, default 14 days). Sellers request a payout to their Sheba account (above the minimum); the owner transfers it and records the bank reference in Admin → Payouts. Requests are serialised per seller, so the same balance can't be requested twice.
+- **Reports:** "Report this product" on every product page (guests leave a contact). Staff resolve, dismiss or hide the product in Admin → Reports.
+- **Public shop page:** `/seller/<address>`, linked from each product.
+
 ## Roadmap
 
-See the plan: milestone 3 adds the marketplace (sellers, commission agreements, payouts).
+See the plan: milestone 4 covers reviews, coupons, bundles, wishlist, blog, a home page builder and sales reports.
