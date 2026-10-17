@@ -1,11 +1,15 @@
 export default defineEventHandler(async (event) => {
-  const user = await requireEditor(event)
+  const access = await catalogAccess(event)
   const input = await readValidatedBody(event, productInput.parse)
-  if (!input.sellerId) {
-    const own = await prisma.seller.findUnique({ where: { userId: user.id } })
-    input.sellerId = own?.id ?? null
+  if (!access.staff) {
+    input.sellerId = access.seller!.id
+    input.featured = false
   }
+  else if (!input.sellerId) {
+    input.sellerId = access.seller?.id ?? null
+  }
+  input.status = sellerStatus(access, input.status) as typeof input.status
   const p = await saveProduct(null, input)
-  await logAdmin(user.id, 'product.create', p.id)
+  await logAdmin(access.user.id, 'product.create', p.id)
   return p
 })

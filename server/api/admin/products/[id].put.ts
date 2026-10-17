@@ -1,8 +1,13 @@
 export default defineEventHandler(async (event) => {
-  const user = await requireEditor(event)
-  const id = getRouterParam(event, 'id')!
+  const access = await catalogAccess(event)
+  const prev = await productForAccess(access, getRouterParam(event, 'id')!)
   const input = await readValidatedBody(event, productInput.parse)
-  const p = await saveProduct(id, input)
-  await logAdmin(user.id, 'product.update', id, { status: input.status })
+  if (!access.staff) {
+    input.sellerId = prev.sellerId
+    input.featured = prev.featured
+  }
+  input.status = sellerStatus(access, input.status, prev) as typeof input.status
+  const p = await saveProduct(prev.id, input)
+  await logAdmin(access.user.id, 'product.update', prev.id, { status: input.status })
   return p
 })

@@ -2,23 +2,44 @@
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 const { t } = useI18n()
 const { num, date } = useL()
-const { data } = await useFetch('/api/admin/stats')
+const { user } = useUserSession()
+const isSeller = computed(() => (user.value as any)?.role === 'SELLER')
+const { data } = await useFetch('/api/admin/stats', { immediate: !isSeller.value })
+const isOwner = computed(() => (user.value as any)?.role === 'OWNER')
 const localePath = useLocalePath()
 const { money } = useL()
 const cards = computed(() => data.value ? [
   { label: t('admin.stats.products'), value: data.value.products, icon: 'i-lucide-package' },
   { label: t('admin.stats.published'), value: data.value.published, icon: 'i-lucide-badge-check' },
-  { label: t('admin.stats.inReview'), value: data.value.inReview, icon: 'i-lucide-hourglass' },
   { label: t('admin.stats.sections'), value: data.value.sections, icon: 'i-lucide-folder-tree' },
   { label: t('admin.stats.types'), value: data.value.types, icon: 'i-lucide-shapes' },
   { label: t('admin.stats.users'), value: data.value.users, icon: 'i-lucide-users' },
 ] : [])
+// Marketplace work waiting for the store
+const queue = computed(() => data.value ? [
+  { label: t('admin.statsExtra.review'), value: data.value.inReview, icon: 'i-lucide-hourglass', to: '/admin/products?status=IN_REVIEW', show: true },
+  { label: t('admin.statsExtra.sellers'), value: data.value.pendingSellers + data.value.proposals, icon: 'i-lucide-users', to: '/admin/sellers', show: isOwner.value },
+  { label: t('admin.statsExtra.payouts'), value: data.value.payouts, icon: 'i-lucide-banknote', to: '/admin/payouts', show: isOwner.value },
+  { label: t('admin.statsExtra.reports'), value: data.value.reports, icon: 'i-lucide-flag', to: '/admin/reports', show: true },
+].filter(c => c.show) : [])
 </script>
 
 <template>
   <UDashboardPanel>
     <template #header><UDashboardNavbar :title="t('admin.dashboard')"><template #leading><UDashboardSidebarCollapse /></template></UDashboardNavbar></template>
     <template #body>
+      <SellerDashboard v-if="isSeller" />
+      <template v-else>
+      <div class="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-4">
+        <NuxtLink v-for="c in queue" :key="c.label" :to="localePath(c.to)">
+          <UCard :class="c.value ? 'ring-2 ring-warning' : ''">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center size-10 rounded-lg bg-warning/10 text-warning"><UIcon :name="c.icon" class="size-5" /></span>
+              <div><p class="text-sm text-muted">{{ c.label }}</p><p class="text-2xl font-extrabold">{{ num(c.value) }}</p></div>
+            </div>
+          </UCard>
+        </NuxtLink>
+      </div>
       <div class="grid gap-4 sm:grid-cols-3 mb-4">
         <NuxtLink :to="localePath('/admin/requests')">
           <UCard :class="data?.newRequests ? 'ring-2 ring-primary' : ''">
@@ -60,6 +81,7 @@ const cards = computed(() => data.value ? [
           </li>
         </ul>
       </UCard>
+      </template>
     </template>
   </UDashboardPanel>
 </template>

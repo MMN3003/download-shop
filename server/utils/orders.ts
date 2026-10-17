@@ -29,14 +29,13 @@ export async function quoteProducts(ids: string[], userId?: string) {
  * (gateway callback and admin approval can race): only the first call acts.
  */
 export async function markOrderPaid(orderId: string) {
-  const settings = await getSettings()
   const done = await prisma.$transaction(async (tx) => {
     const { count } = await tx.order.updateMany({ where: { id: orderId, status: { notIn: ['PAID', 'REFUNDED'] } }, data: { status: 'PAID', paidAt: new Date() } })
     if (!count) return null
     const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true, user: true } })
     for (const item of order.items) {
-      // Store/seller split, frozen now. Per-seller agreements arrive with the marketplace milestone.
-      const percent = settings.defaultCommissionPercent
+      // Store/seller split, frozen now so later rate changes never touch past earnings
+      const percent = await commissionPercent(item.sellerId, item.productId, order.paidAt ?? new Date())
       const commission = Math.round(item.unitPrice * percent / 100)
       await tx.orderItem.update({ where: { id: item.id }, data: { commissionPercent: percent, commission, sellerNet: item.unitPrice - commission } })
       await tx.libraryItem.upsert({

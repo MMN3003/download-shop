@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  await requireEditor(event)
+  await catalogAccess(event)
   const lists = await prisma.optionList.findMany({
     orderBy: { createdAt: 'asc' },
     include: {

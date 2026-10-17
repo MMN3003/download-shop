@@ -8,8 +8,11 @@ export async function requireRole(event: H3Event, roles: readonly AppRole[]) {
   const session = await getUserSession(event)
   const user = session.user as { id: string, role: AppRole } | undefined
   if (!user) throw createError({ statusCode: 401, message: 'Login required' })
-  if (!roles.includes(user.role)) throw createError({ statusCode: 403, message: 'Not allowed' })
-  return user
+  // The session keeps the role from login time; a promotion or demotion since then counts now
+  const row = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+  if (!row) throw createError({ statusCode: 401, message: 'Login required' })
+  if (!roles.includes(row.role as AppRole)) throw createError({ statusCode: 403, message: 'Not allowed' })
+  return { ...user, role: row.role as AppRole }
 }
 
 /** Catalog editing: owner and editors. */

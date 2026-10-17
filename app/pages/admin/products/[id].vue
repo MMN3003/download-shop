@@ -35,7 +35,14 @@ const manualFields = computed(() => (type.value?.attributes ?? []).filter((a: an
 const autoFields = computed(() => (type.value?.attributes ?? []).filter((a: any) => a.autoFilled))
 const typeItems = computed(() => (types.value ?? []).map(x => ({ label: l(x.name), value: x.id })))
 const sectionItems = computed(() => buildSectionTree(sections.value ?? []).flat.map(s => ({ label: `${'— '.repeat(s.depth)}${l(s.name)}`, value: s.id })))
-const statusItems = computed(() => ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'HIDDEN'].map(s => ({ label: t(`admin.product.statuses.${s}`), value: s })))
+const { user } = useUserSession()
+const isSeller = computed(() => (user.value as any)?.role === 'SELLER')
+const { data: me } = await useFetch<any>('/api/seller/me', { immediate: isSeller.value })
+// Untrusted sellers send products for review instead of publishing them
+const trusted = computed(() => !isSeller.value || me.value?.seller?.trusted)
+const statusItems = computed(() => ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'HIDDEN']
+  .filter(s => trusted.value || s !== 'PUBLISHED' || form.value.status === 'PUBLISHED')
+  .map(s => ({ label: t(isSeller.value && s === 'IN_REVIEW' ? 'seller.sendForReview' : `admin.product.statuses.${s}`), value: s })))
 const optionItems = (a: any) => (a.options ?? []).map((o: any) => ({ label: l(o.label), value: o.value }))
 
 // learnPoints are stored per language as arrays; edited as one item per line
@@ -79,8 +86,25 @@ async function save() {
 
 async function remove() {
   if (!confirm(t('admin.confirmDelete'))) return
-  await $fetch(`/api/admin/products/${route.params.id}`, { method: 'DELETE' })
-  navigateTo(localePath('/admin/products'))
+  try {
+    await $fetch(`/api/admin/products/${route.params.id}`, { method: 'DELETE' })
+    navigateTo(localePath('/admin/products'))
+  }
+  catch (e: any) { toast.add({ title: apiError(e), color: 'error' }) }
+}
+
+// Review queue (staff)
+const review = reactive({ note: '', busy: false })
+async function decide(action: 'approve' | 'reject') {
+  review.busy = true
+  try {
+    await $fetch(`/api/admin/products/${route.params.id}/review`, { method: 'PUT', body: { action, note: review.note } })
+    toast.add({ title: t('admin.saved'), color: 'success' })
+    review.note = ''
+    await load()
+  }
+  catch (e: any) { toast.add({ title: apiError(e), color: 'error' }) }
+  finally { review.busy = false }
 }
 
 // Files
@@ -226,10 +250,24 @@ const fmt = useAttrFormat()
         </div>
 
         <div class="space-y-6">
+          <UAlert v-if="form.reviewNote" color="error" variant="soft" icon="i-lucide-message-square-warning" :title="t('seller.changesNeeded')">
+            <template #description><p class="whitespace-pre-line break-words" dir="auto">{{ form.reviewNote }}</p></template>
+          </UAlert>
+          <UCard v-if="!isSeller && form.status === 'IN_REVIEW' && !isNew" :ui="{ root: 'ring-2 ring-warning' }">
+            <template #header><h2 class="font-bold">{{ t('admin.review.title') }}</h2></template>
+            <div class="space-y-3">
+              <p v-if="form.seller" class="text-sm text-muted">{{ t('admin.review.by', { name: form.seller.displayName }) }}</p>
+              <UTextarea v-model="review.note" :rows="2" maxlength="1000" :placeholder="t('admin.review.notePh')" autoresize class="w-full" />
+              <div class="flex gap-2">
+                <UButton color="success" icon="i-lucide-check" :loading="review.busy" :label="t('admin.review.approve')" @click="decide('approve')" />
+                <UButton color="error" variant="soft" icon="i-lucide-x" :loading="review.busy" :disabled="!review.note.trim()" :label="t('admin.review.reject')" @click="decide('reject')" />
+              </div>
+            </div>
+          </UCard>
           <UCard>
             <div class="space-y-4">
-              <UFormField :label="t('admin.product.status')"><USelect v-model="form.status" :items="statusItems" class="w-full" /></UFormField>
-              <USwitch v-model="form.featured" :label="t('admin.product.featured')" />
+              <UFormField :label="t('admin.product.status')" :help="isSeller && !trusted ? t('seller.reviewHelp') : undefined"><USelect v-model="form.status" :items="statusItems" class="w-full" /></UFormField>
+              <USwitch v-if="!isSeller" v-model="form.featured" :label="t('admin.product.featured')" />
             </div>
           </UCard>
           <UCard>

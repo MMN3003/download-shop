@@ -12,7 +12,8 @@
     "account": "My account",
     "library": "My library",
     "orders": "My orders",
-    "requests": "Request a deck"
+    "requests": "Request a deck",
+    "sell": "Sell with us"
   },
   "home": {
     "featured": "Featured",
@@ -241,7 +242,12 @@
       "requests": "Product requests",
       "requestsEnabled": "Buyers can send requests",
       "requestsList": "List used for From/To",
-      "requestsPerDay": "Requests per buyer per day"
+      "requestsPerDay": "Requests per buyer per day",
+      "marketplace": "Marketplace",
+      "sellersOpen": "Accept new seller applications",
+      "holdDays": "Holding period (days)",
+      "holdDaysHint": "Earnings can be withdrawn after this many days, so refunds are still possible.",
+      "minPayout": "Smallest payout"
     },
     "upload": "Upload",
     "remove": "Remove",
@@ -305,7 +311,11 @@
     "statsExtra": {
       "pending": "Receipts waiting",
       "sales30": "Sales in 30 days",
-      "requests": "New requests"
+      "requests": "New requests",
+      "review": "Waiting for review",
+      "sellers": "Sellers to answer",
+      "payouts": "Payouts to pay",
+      "reports": "Open reports"
     },
     "requests": "Requests",
     "request": {
@@ -319,6 +329,46 @@
       "others": "{n} other requests from this buyer",
       "search": "Number, subject, phone or email",
       "messages": "Messages"
+    },
+    "sellers": "Sellers",
+    "payouts": "Payouts",
+    "reports": "Reports",
+    "review": {
+      "title": "Review",
+      "by": "From {name}",
+      "notePh": "What should the seller change? (needed to send back)",
+      "approve": "Publish",
+      "reject": "Send back"
+    },
+    "seller": {
+      "productsN": "{n} products",
+      "counter": "Counter-offer",
+      "end": "End now",
+      "why": "Reason (optional)",
+      "setRate": "Set a rate",
+      "noEnd": "Empty means no end date",
+      "note": "Note",
+      "direct": "Apply now",
+      "directHelp": "The rate applies at once; the seller is told.",
+      "offerHelp": "The seller has to accept it first.",
+      "apply": "Apply rate",
+      "sendOffer": "Send offer",
+      "account": "Account",
+      "termsAt": "Accepted terms",
+      "decision": "Decision",
+      "notePh": "Note to the seller (optional)",
+      "approve": "Approve",
+      "reject": "Reject",
+      "suspend": "Suspend",
+      "trusted": "Trusted seller",
+      "trustedHelp": "Publishes without the review queue"
+    },
+    "payout": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "paidAt": "paid",
+      "markPaid": "Mark as paid",
+      "help": "Transfer the amount to the Sheba number, then enter the bank reference."
     }
   },
   "langs": {
@@ -477,5 +527,144 @@
     "closed": "This request is closed.",
     "unread": "New reply",
     "plainNote": "Plain text only."
+  },
+  "seller": {
+    "panel": "Seller panel",
+    "title": "Sell your products here",
+    "intro": "Upload decks, books, templates or any other digital product. We handle payments and downloads; you get paid for every sale.",
+    "how": {
+      "apply": "Apply",
+      "applyText": "Tell us about your shop. We review every application.",
+      "upload": "Upload",
+      "uploadText": "Add products from the seller panel. New products are checked before they go live.",
+      "earn": "Earn",
+      "earnText": "The store keeps a {n}% commission by default. You can propose a different rate."
+    },
+    "apply": "Seller application",
+    "displayName": "Shop name",
+    "slug": "Shop address",
+    "bio": "About your shop",
+    "proposePercent": "Proposed commission (%)",
+    "defaultIs": "Default is {n}%. Leave empty to accept it.",
+    "proposeNote": "Why (optional)",
+    "terms": "I accept the seller terms",
+    "termsText": "I own the rights to what I sell, the store takes the agreed commission from each sale, and payouts go to my own bank account.",
+    "send": "Send",
+    "applied": "Application sent. We will let you know.",
+    "closed": "Seller sign-up is closed for now.",
+    "openPanel": "Open seller panel",
+    "status": {
+      "pending": "Under review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "suspended": "Suspended"
+    },
+    "statusText": {
+      "pending": "Your application is being reviewed. We will message you when it is decided.",
+      "approved": "Your shop is active. Add products from the seller panel.",
+      "rejected": "Your application was not accepted. You can change it and apply again.",
+      "suspended": "Your shop is suspended. Contact support."
+    },
+    "earnings": "Earnings",
+    "commission": "Commission",
+    "shop": "Shop profile",
+    "available": "Available to withdraw",
+    "held": "On hold ({n} days)",
+    "paidOut": "Paid out",
+    "rate": "Your commission rate",
+    "rateEnds": "Your current rate ends on {date}.",
+    "rateDefault": "Store default rate",
+    "rateAgreed": "Agreed rate",
+    "rateHelp": "A rate for one product comes first, then one for a section, then your shop-wide rate. The rate at the time of each sale is kept with that sale.",
+    "trustedNote": "You are a trusted seller: your changes go live right away.",
+    "reviewNote": "New products and changes are reviewed by the store before buyers see them.",
+    "noSheba": "Add your Sheba number to receive payouts",
+    "sales": "{n} sales",
+    "sendForReview": "Send for review",
+    "reviewHelp": "Saving a published product sends it for review again.",
+    "changesNeeded": "Changes needed",
+    "totals": {
+      "sales": "Sales",
+      "gross": "Total sales",
+      "commission": "Store commission",
+      "net": "Your share"
+    },
+    "salesList": "Sales",
+    "orderNo": "Order",
+    "noSales": "No sales yet",
+    "payout": "Withdraw",
+    "payouts": "Payouts",
+    "amount": "Amount",
+    "minPayout": "Minimum {n}",
+    "requestPayout": "Request payout",
+    "payoutSent": "Payout requested",
+    "payoutStatus": {
+      "REQUESTED": "Requested",
+      "PAID": "Paid",
+      "REJECTED": "Rejected"
+    },
+    "reference": "Reference",
+    "agreements": "Offers and agreements",
+    "noAgreements": "No offers yet",
+    "propose": "Propose a rate",
+    "percent": "Commission (%)",
+    "scopeLabel": "Applies to",
+    "proposed": "Proposal sent",
+    "scope": {
+      "seller": "Whole shop",
+      "section": "One section",
+      "product": "One product"
+    },
+    "by": {
+      "seller": "proposed by you",
+      "store": "offer from the store"
+    },
+    "agreement": {
+      "PROPOSED": "Waiting",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "inForce": "In force",
+    "accept": "Accept",
+    "reject": "Reject",
+    "withdraw": "Withdraw",
+    "from": "From",
+    "until": "until",
+    "profile": "Profile",
+    "avatar": "Logo or photo",
+    "bank": "Bank account",
+    "sheba": "Sheba number",
+    "shebaHelp": "IR followed by 24 digits",
+    "accountHolder": "Account holder",
+    "viewShop": "View shop",
+    "public": {
+      "since": "Selling since {date}",
+      "products": "{n} products"
+    }
+  },
+  "report": {
+    "button": "Report this product",
+    "title": "Report a problem",
+    "reason": "Reason",
+    "details": "What is wrong?",
+    "contact": "Your phone or email",
+    "send": "Send report",
+    "thanks": "Thanks. We will look into it.",
+    "reasons": {
+      "copyright": "Copyright",
+      "wrong": "Wrong or broken content",
+      "offensive": "Offensive",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Open",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    },
+    "hide": "Hide product",
+    "resolve": "Resolve",
+    "dismiss": "Dismiss",
+    "reopen": "Reopen"
   }
 }
