@@ -8,6 +8,7 @@ const role = computed(() => (user.value as any)?.role)
 const items = computed(() => [[
   { label: t('admin.dashboard'), icon: 'i-lucide-gauge', to: localePath('/admin'), exact: true },
   { label: t('admin.orders'), icon: 'i-lucide-receipt', to: localePath('/admin/orders'), badge: stats.value?.pendingReceipts || undefined },
+  { label: t('admin.requests'), icon: 'i-lucide-message-square-plus', to: localePath('/admin/requests'), badge: stats.value?.newRequests || undefined },
   // Support staff only handle orders; catalog and settings are for owner/editors
   ...(['OWNER', 'EDITOR'].includes(role.value) ? [
     { label: t('admin.products'), icon: 'i-lucide-package', to: localePath('/admin/products') },

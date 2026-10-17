@@ -9,7 +9,7 @@ const fields = z.object({
   transferredAt: z.string().min(1),
 })
 const MAX = 8 * 1024 * 1024
-const TYPES: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'application/pdf': '.pdf' }
+
 
 /** Upload a transfer receipt for a manual payment; the order then waits for an admin. */
 export default defineEventHandler(async (event) => {
@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
   const text = Object.fromEntries(parts.filter(p => !p.filename && p.name).map(p => [p.name!, toLatinDigits(p.data.toString('utf8'))]))
   const data = fields.parse(text)
   if (!file) throw createError({ statusCode: 422, message: 'Attach the receipt image' })
-  const ext = TYPES[file.type ?? '']
-  if (!ext) throw createError({ statusCode: 422, message: 'Receipt must be JPG, PNG, WEBP or PDF' })
+  const ext = sniffType(file.data)
+  if (!ext || ext === '.gif') throw createError({ statusCode: 422, message: 'Receipt must be JPG, PNG, WEBP or PDF' })
   if (file.data.length > MAX) throw createError({ statusCode: 413, message: 'Receipt is larger than 8 MB' })
   const settings = await getSettings()
   const method = getPaymentMethod(data.method)

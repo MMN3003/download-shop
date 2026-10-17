@@ -9,6 +9,7 @@ const router = useRouter()
 const { t } = useI18n()
 const { l, num } = useL()
 const { data: store } = await useStore()
+const localePath = useLocalePath()
 
 const query = computed(() => ({ ...route.query, ...(props.section ? { section: props.section } : {}) }))
 const { data, status } = await useFetch('/api/products', { query, watch: [query] })
@@ -103,7 +104,7 @@ const filtersOpen = ref(false)
         <USkeleton v-for="i in 8" :key="i" class="h-72" />
       </div>
       <ProductGrid v-else-if="data?.items.length" :items="data.items" />
-      <UEmpty v-else icon="i-lucide-search-x" :title="t('catalog.noResults')" />
+      <UEmpty v-else icon="i-lucide-search-x" :title="t('catalog.noResults')" :description="t('request.intro')" :actions="[{ label: t('nav.requests'), icon: 'i-lucide-message-square-plus', to: localePath('/requests') }]" />
 
       <div v-if="data && data.total > data.perPage" class="flex justify-center pt-4">
         <UPagination :page="page" :total="data.total" :items-per-page="data.perPage" @update:page="p => router.replace({ query: { ...route.query, page: String(p) } })" />

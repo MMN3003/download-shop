@@ -19,7 +19,15 @@ const cards = computed(() => data.value ? [
   <UDashboardPanel>
     <template #header><UDashboardNavbar :title="t('admin.dashboard')"><template #leading><UDashboardSidebarCollapse /></template></UDashboardNavbar></template>
     <template #body>
-      <div class="grid gap-4 sm:grid-cols-2 mb-4">
+      <div class="grid gap-4 sm:grid-cols-3 mb-4">
+        <NuxtLink :to="localePath('/admin/requests')">
+          <UCard :class="data?.newRequests ? 'ring-2 ring-primary' : ''">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center size-10 rounded-lg bg-primary/10 text-primary"><UIcon name="i-lucide-message-square-plus" class="size-5" /></span>
+              <div><p class="text-sm text-muted">{{ t('admin.statsExtra.requests') }}</p><p class="text-2xl font-extrabold">{{ num(data?.newRequests ?? 0) }}</p></div>
+            </div>
+          </UCard>
+        </NuxtLink>
         <NuxtLink :to="localePath('/admin/orders?status=AWAITING_VERIFICATION')">
           <UCard :class="data?.pendingReceipts ? 'ring-2 ring-info' : ''">
             <div class="flex items-center gap-3">

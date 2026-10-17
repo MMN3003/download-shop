@@ -12,8 +12,9 @@ export default defineEventHandler(async (event) => {
     const data = await getFile('public', key)
     const type = TYPES[extname(key).toLowerCase()] || 'application/octet-stream'
     setHeader(event, 'Content-Type', type)
-    // SVGs can carry scripts; only allow them as images
-    if (type === 'image/svg+xml') setHeader(event, 'Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'")
+    // Uploaded files never run as pages: no type sniffing, and no scripts even if opened directly (e.g. an SVG)
+    setHeader(event, 'X-Content-Type-Options', 'nosniff')
+    setHeader(event, 'Content-Security-Policy', "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox")
     setHeader(event, 'Cache-Control', 'public, max-age=31536000, immutable')
     return data
   }

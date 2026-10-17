@@ -11,7 +11,8 @@
     "cart": "Cart",
     "account": "My account",
     "library": "My library",
-    "orders": "My orders"
+    "orders": "My orders",
+    "requests": "Request a deck"
   },
   "home": {
     "featured": "Featured",
@@ -236,7 +237,11 @@
       "sheba": "Sheba number",
       "enabled": "Enabled",
       "downloadLimit": "Downloads allowed per product",
-      "downloadLimitHint": "0 = unlimited"
+      "downloadLimitHint": "0 = unlimited",
+      "requests": "Product requests",
+      "requestsEnabled": "Buyers can send requests",
+      "requestsList": "List used for From/To",
+      "requestsPerDay": "Requests per buyer per day"
     },
     "upload": "Upload",
     "remove": "Remove",
@@ -299,7 +304,21 @@
     },
     "statsExtra": {
       "pending": "Receipts waiting",
-      "sales30": "Sales in 30 days"
+      "sales30": "Sales in 30 days",
+      "requests": "New requests"
+    },
+    "requests": "Requests",
+    "request": {
+      "from": "From",
+      "to": "To",
+      "buyer": "Buyer",
+      "status": "Status",
+      "answer": "Answer (sent to the buyer)",
+      "save": "Send / save",
+      "product": "Product made for it (slug)",
+      "others": "{n} other requests from this buyer",
+      "search": "Number, subject, phone or email",
+      "messages": "Messages"
     }
   },
   "langs": {
@@ -417,6 +436,46 @@
     "downloadsUnlimited": "Downloads: {used}",
     "updated": "Updated since your last download",
     "limit": "Download limit reached. Contact support.",
-    "howTo": "How to import into AnkiDroid: open the downloaded .apkg file and choose AnkiDroid."
+    "howTo": "How to import into AnkiDroid: open the downloaded .apkg file and choose AnkiDroid.",
+    "bought": "Order #{n}",
+    "free": "Free",
+    "lastDownload": "Last downloaded {d}",
+    "history": "Download history",
+    "noHistory": "No downloads yet",
+    "tabs": {
+      "library": "My files",
+      "orders": "Purchases",
+      "history": "Downloads"
+    }
+  },
+  "request": {
+    "title": "Deck requests",
+    "intro": "Can't find what you need? Tell us the languages and subject and we'll try to make it.",
+    "new": "New request",
+    "source": "From (language taught)",
+    "target": "To (translation)",
+    "subject": "Subject",
+    "subjectPh": "e.g. Medical terms, Menschen A1 book, daily conversation",
+    "details": "More details (optional)",
+    "detailsPh": "Level, book name, number of cards, audio…",
+    "send": "Send request",
+    "sent": "Request sent. We'll answer here.",
+    "mine": "My requests",
+    "none": "You haven't sent any requests yet",
+    "number": "Request #{n}",
+    "status": {
+      "OPEN": "New",
+      "IN_PROGRESS": "In progress",
+      "DONE": "Ready",
+      "DECLINED": "Declined"
+    },
+    "reply": "Write a message",
+    "send2": "Send",
+    "you": "You",
+    "support": "Support",
+    "ready": "Your deck is ready:",
+    "closed": "This request is closed.",
+    "unread": "New reply",
+    "plainNote": "Plain text only."
   }
 }

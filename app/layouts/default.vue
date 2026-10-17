@@ -11,6 +11,7 @@ const userMenu = computed(() => [[
 ], [
   { label: t('nav.library'), icon: 'i-lucide-library', to: localePath('/library') },
   { label: t('nav.orders'), icon: 'i-lucide-receipt', to: localePath('/orders') },
+  { label: t('nav.requests'), icon: 'i-lucide-message-square-plus', to: localePath('/requests') },
   { label: t('nav.account'), icon: 'i-lucide-user', to: localePath('/account') },
   ...(isAdmin.value ? [{ label: t('nav.admin'), icon: 'i-lucide-layout-dashboard', to: localePath('/admin') }] : []),
 ], [
@@ -85,6 +86,7 @@ useSeoMeta({ titleTemplate: s => (s ? `${s} | ` : '') + l(store.value?.settings.
         <p class="text-sm text-muted">© {{ new Date().getFullYear() }} {{ l(store?.settings.storeName) }}. {{ t('footer.rights') }}</p>
       </template>
       <template #right>
+        <UButton color="neutral" variant="link" size="sm" icon="i-lucide-message-square-plus" :label="t('nav.requests')" :to="localePath('/requests')" />
         <UButton v-if="store?.settings.social.instagram" icon="i-lucide-instagram" color="neutral" variant="ghost" :to="store.settings.social.instagram" target="_blank" aria-label="Instagram" />
         <UButton v-if="store?.settings.social.telegram" icon="i-lucide-send" color="neutral" variant="ghost" :to="store.settings.social.telegram" target="_blank" aria-label="Telegram" />
 

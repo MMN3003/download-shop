@@ -8,6 +8,8 @@ export function cleanHtml(text: Record<string, string> | null | undefined) {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img', 'h2', 'h3', 'h4'],
     allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'width', 'height'], '*': ['dir'] },
     allowedSchemes: ['http', 'https', 'mailto'],
+    // Seller-written links can't reach back into the store window
+    transformTags: { a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer nofollow' }) },
   }
   return Object.fromEntries(Object.entries(text).map(([k, v]) => [k, sanitizeHtml(v, opts)]))
 }
