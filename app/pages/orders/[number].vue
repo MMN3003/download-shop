@@ -75,7 +75,15 @@ useSeoMeta({ title: () => t('order.title', { n: order.value?.number }), robots: 
       <ul class="divide-y divide-default">
         <li v-for="i in order.items" :key="i.productId" class="flex items-center gap-4 p-4">
           <NuxtLink :to="localePath(`/p/${i.slug}`)" class="flex-1 font-medium hover:text-primary">{{ l(i.title) }}</NuxtLink>
-          <span>{{ money(i.unitPrice) }}</span>
+          <UBadge v-if="i.inBundle" variant="soft" size="sm" :label="t('bundle.label')" />
+          <span class="text-end">
+            <span class="block">{{ money(i.unitPrice) }}</span>
+            <del v-if="i.discount" class="block text-xs text-muted">{{ money(i.unitPrice + i.discount) }}</del>
+          </span>
+        </li>
+        <li v-if="order.discount" class="flex justify-between p-4 text-success">
+          <span>{{ t('cart.saving') }}<template v-if="order.couponCode"> · <bdi dir="ltr" class="font-mono">{{ order.couponCode }}</bdi></template></span>
+          <span>− {{ money(order.discount) }}</span>
         </li>
         <li class="flex justify-between p-4 font-extrabold"><span>{{ t('order.total') }}</span><span>{{ money(order.total) }}</span></li>
       </ul>

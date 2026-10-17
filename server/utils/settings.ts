@@ -1,4 +1,26 @@
 import { prisma } from './prisma'
+export type HomeBlock = {
+  id: string
+  type: 'sections' | 'featured' | 'newest' | 'popular' | 'free' | 'section' | 'bundles' | 'blog' | 'banner' | 'how'
+  enabled: boolean
+  title?: Record<string, string> | null
+  sectionId?: string | null
+  image?: string | null
+  link?: string | null
+  limit?: number
+}
+
+const DEFAULT_HOME_BLOCKS: HomeBlock[] = [
+  { id: 'sections', type: 'sections', enabled: true },
+  { id: 'featured', type: 'featured', enabled: true },
+  { id: 'bundles', type: 'bundles', enabled: true },
+  { id: 'newest', type: 'newest', enabled: true },
+  { id: 'popular', type: 'popular', enabled: true },
+  { id: 'free', type: 'free', enabled: true },
+  { id: 'blog', type: 'blog', enabled: true },
+  { id: 'how', type: 'how', enabled: true },
+]
+
 /** Store settings live in the Setting table so one codebase can run any store. */
 export const DEFAULT_SETTINGS = {
   storeName: { fa: 'فروشگاه من', en: 'My Store' } as Record<string, string>,
@@ -20,6 +42,10 @@ export const DEFAULT_SETTINGS = {
   requests: { enabled: true, listKey: 'languages', perDay: 3 },
   /** Marketplace: who may apply to sell, and when seller money can be paid out */
   marketplace: { sellersOpen: true, payoutHoldDays: 14, minPayout: 100000 },
+  /** Buyers rate what they own; with `moderate` new reviews wait for staff */
+  reviews: { enabled: true, moderate: false },
+  /** Home page blocks, in order (edited in Admin → Home page) */
+  home: { blocks: DEFAULT_HOME_BLOCKS },
 }
 
 export type StoreSettings = typeof DEFAULT_SETTINGS

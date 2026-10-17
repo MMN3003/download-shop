@@ -18,5 +18,13 @@ export default defineEventHandler(async (event) => {
   const userId = (session.user as any)?.id as string | undefined
   const owned = userId ? !!(await prisma.libraryItem.findFirst({ where: { userId, productId: p.id, revoked: false } })) : false
   const sample = p.files.find(f => f.kind === 'SAMPLE')
-  return { product: { ...toPublicProduct(p), hasSample: !!sample }, related: related.map(toProductCard), owned }
+  const [bundles, wished] = await Promise.all([
+    prisma.bundle.findMany({ where: { active: true, items: { some: { productId: p.id } } }, include: bundleInclude, take: 3 }),
+    userId ? prisma.wishlistItem.count({ where: { userId, productId: p.id } }) : 0,
+  ])
+  return {
+    product: { ...toPublicProduct(p), hasSample: !!sample },
+    related: related.map(toProductCard), owned, wished: !!wished,
+    bundles: bundles.map(toPublicBundle).filter(b => b.products.length >= 2),
+  }
 })

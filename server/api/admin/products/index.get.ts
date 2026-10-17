@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const where: Prisma.ProductWhereInput = {
     // Sellers only ever see their own products
     ...(access.staff ? (q.seller ? { sellerId: q.seller } : {}) : { sellerId: access.seller!.id }),
+    ...(q.ids ? { id: { in: String(q.ids).split(',').slice(0, 100) } } : {}),
     ...(q.status ? { status: q.status as any } : {}),
     ...(q.type ? { productTypeId: q.type } : {}),
     ...(q.q ? { OR: [{ searchText: { contains: normalizeSearch(q.q), mode: 'insensitive' } }, { slug: { contains: q.q } }] } : {}),

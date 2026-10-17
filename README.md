@@ -59,6 +59,16 @@ pnpm test
 - **Reports:** "Report this product" on every product page (guests leave a contact). Staff resolve, dismiss or hide the product in Admin → Reports.
 - **Public shop page:** `/seller/<address>`, linked from each product.
 
+## Growth (milestone 4)
+
+- **Reviews:** only people who own a product can rate it (1–5) and write a review; one per buyer, editable. Settings → Reviews turns them off or makes new reviews wait for a check. Staff publish or hide them in Admin → Reviews; the product's seller (or staff) can reply, and the buyer is told. The product's rating counts published reviews only.
+- **Discount codes:** Admin → Discount codes. Percent or fixed amount, for all products, one section or one product, with a minimum cart, total and per-buyer limits and dates. Codes apply to products bought on their own, not to bundles. The discount lowers the price the seller's share is worked out from. A code is counted as used when the order is paid.
+- **Bundles:** Admin → Bundles sells two or more products for less than their total (`/b/<address>`, `/bundles`). The bundle price is split over its products by price (`splitByWeight`), so each seller gets their share. A buyer who already owns part of a bundle pays only for the rest, at the same discount.
+- **Wishlist:** the heart on products; saved items are under My library → Wishlist.
+- **Blog:** Admin → Blog, with drafts, tags, cover, SEO fields and related products (`/blog`). The body is HTML cleaned on save like product descriptions.
+- **Home page builder:** Admin → Home page chooses the blocks (section tiles, featured, newest, best sellers, free, one section, bundles, blog, banners, how it works), their order, titles and how many items. Banner links must be a store path or an `https://` address.
+- **Sales report:** Admin → Sales report (owner only): totals, a chart by day or month, best sellers, codes used and what each seller earned and was paid per month, plus a CSV of every paid line (formula cells neutralised for spreadsheets).
+
 ## Roadmap
 
-See the plan: milestone 4 covers reviews, coupons, bundles, wishlist, blog, a home page builder and sales reports.
+All four planned milestones are built. Next ideas are in the plan.

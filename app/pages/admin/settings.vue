@@ -111,6 +111,14 @@ async function save() {
           </div>
         </div>
       </UCard>
+
+      <UCard class="max-w-3xl">
+        <template #header><h2 class="font-bold">{{ t('admin.settingsPage.reviews') }}</h2></template>
+        <div class="space-y-4">
+          <USwitch v-model="form.reviews.enabled" :label="t('admin.settingsPage.reviewsEnabled')" :description="t('admin.settingsPage.reviewsEnabledHint')" />
+          <USwitch v-model="form.reviews.moderate" :disabled="!form.reviews.enabled" :label="t('admin.settingsPage.reviewsModerate')" :description="t('admin.settingsPage.reviewsModerateHint')" />
+        </div>
+      </UCard>
     </template>
   </UDashboardPanel>
 </template>

@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   await requireRole(event, ADMIN_ROLES)
   const since = new Date(Date.now() - 30 * 86400_000)
-  const [products, published, inReview, sections, types, users, recent, pendingReceipts, paid30, newRequests, pendingSellers, proposals, payouts, reports] = await Promise.all([
+  const [products, published, inReview, sections, types, users, recent, pendingReceipts, paid30, newRequests, pendingSellers, proposals, payouts, reports, pendingReviews] = await Promise.all([
     prisma.product.count(),
     prisma.product.count({ where: { status: 'PUBLISHED' } }),
     prisma.product.count({ where: { status: 'IN_REVIEW' } }),
@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
     prisma.commissionAgreement.count({ where: { status: 'PROPOSED', proposedBy: 'seller' } }),
     prisma.payout.count({ where: { status: 'REQUESTED' } }),
     prisma.contentReport.count({ where: { status: 'open' } }),
+    prisma.review.count({ where: { status: 'pending' } }),
   ])
-  return { products, published, inReview, sections, types, users, recent, pendingReceipts, newRequests, pendingSellers, proposals, payouts, reports, sales30: { count: paid30._count, total: paid30._sum.total ?? 0 } }
+  return { products, published, inReview, sections, types, users, recent, pendingReceipts, newRequests, pendingSellers, proposals, payouts, reports, pendingReviews, sales30: { count: paid30._count, total: paid30._sum.total ?? 0 } }
 })
