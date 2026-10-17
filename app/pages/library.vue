@@ -10,6 +10,11 @@ const toast = useToast()
 const { data: items, refresh } = await useFetch<any[]>('/api/library')
 const { data: orders } = await useFetch<any[]>('/api/orders')
 const { data: history, refresh: refreshHistory } = await useFetch<any[]>('/api/library/downloads')
+const { data: saved } = await useFetch<any[]>('/api/wishlist')
+const wishlist = useWishlist()
+onMounted(() => wishlist.load())
+// A heart taken off here hides the card at once
+const savedNow = computed(() => (saved.value ?? []).filter(p => wishlist.ids.value === null || wishlist.has(p.id)))
 const tab = computed({
   get: () => String(route.query.tab ?? 'library'),
   set: v => router.replace({ query: v === 'library' ? {} : { tab: v } }),
@@ -18,6 +23,7 @@ const tabs = computed(() => [
   { label: t('library.tabs.library'), value: 'library', icon: 'i-lucide-library', badge: items.value?.length || undefined },
   { label: t('library.tabs.orders'), value: 'orders', icon: 'i-lucide-receipt' },
   { label: t('library.tabs.history'), value: 'history', icon: 'i-lucide-history' },
+  { label: t('wishlist.title'), value: 'wishlist', icon: 'i-lucide-heart', badge: savedNow.value.length || undefined },
 ])
 const busy = ref('')
 
@@ -76,6 +82,11 @@ useSeoMeta({ title: () => t('library.title'), robots: 'noindex' })
         </UCard>
       </div>
       <p v-if="items?.length" class="text-sm text-muted flex items-center gap-2"><UIcon name="i-lucide-info" />{{ t('library.howTo') }}</p>
+    </template>
+
+    <template v-else-if="tab === 'wishlist'">
+      <UEmpty v-if="!savedNow.length" icon="i-lucide-heart" :title="t('wishlist.empty')" :actions="[{ label: t('cart.browse'), to: localePath('/search') }]" />
+      <ProductGrid v-else :items="savedNow" />
     </template>
 
     <template v-else-if="tab === 'orders'">

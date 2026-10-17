@@ -2,7 +2,7 @@
 const route = useRoute()
 const { data, error } = await useFetch(() => `/api/products/${encodeURIComponent(String(route.params.slug))}`)
 if (error.value) throw createError({ statusCode: error.value.statusCode ?? 500, statusMessage: error.value.statusMessage, fatal: true })
-const { l, date, bytes } = useL()
+const { l, date, bytes, num } = useL()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
@@ -29,10 +29,12 @@ useSeoMeta({
 useHead({
   script: [{
     type: 'application/ld+json',
+    // Seller-written text must not be able to close the script tag
     innerHTML: () => JSON.stringify({
       '@context': 'https://schema.org', '@type': 'Product', name: l(p.value.title), description: l(p.value.shortDesc), image: p.value.cover ?? undefined,
       offers: { '@type': 'Offer', price: p.value.finalPrice, priceCurrency: 'IRR', availability: 'https://schema.org/InStock' },
-    }),
+      ...(p.value.ratingCount ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: p.value.ratingAvg, reviewCount: p.value.ratingCount } } : {}),
+    }).replace(/</g, '\\u003c'),
   }],
 })
 
@@ -73,6 +75,9 @@ async function claim() {
           <UBadge color="primary" variant="soft" class="mb-3">{{ l(p.productType.name) }}</UBadge>
           <h1 class="text-2xl md:text-3xl font-extrabold leading-relaxed">{{ l(p.title) }}</h1>
           <p v-if="l(p.shortDesc)" class="mt-2 text-lg text-muted">{{ l(p.shortDesc) }}</p>
+          <a v-if="p.ratingCount" href="#reviews" class="mt-2 inline-flex items-center gap-2 text-sm text-muted hover:text-primary">
+            <StarRating :value="p.ratingAvg" /><span>{{ num(p.ratingAvg) }} · {{ t('review.count', { n: num(p.ratingCount) }) }}</span>
+          </a>
         </div>
 
         <section v-if="p.previews.length" class="space-y-3">
@@ -106,6 +111,13 @@ async function claim() {
         <div v-if="p.screenshots.length" class="grid gap-3 grid-cols-2 md:grid-cols-3">
           <img v-for="s in p.screenshots" :key="s!" :src="s!" alt="" class="rounded-lg border border-default">
         </div>
+
+        <section v-if="data.bundles.length" class="space-y-3">
+          <h2 class="text-lg font-bold flex items-center gap-2"><UIcon name="i-lucide-package-plus" />{{ t('bundle.offers') }}</h2>
+          <div class="grid gap-4 sm:grid-cols-2"><BundleCard v-for="b in data.bundles" :key="b.id" :bundle="b" /></div>
+        </section>
+
+        <ProductReviews :slug="p.slug" />
       </div>
 
       <aside class="lg:sticky lg:top-24 self-start space-y-4">
@@ -122,6 +134,7 @@ async function claim() {
               <UButton v-if="cart.has(p.id)" block color="neutral" variant="outline" icon="i-lucide-check" :label="t('product.inCart')" :to="localePath('/cart')" />
               <UButton v-else block color="neutral" variant="outline" icon="i-lucide-shopping-cart" :label="t('product.addToCart')" @click="addToCart" />
             </template>
+            <WishlistButton :product-id="p.id" block />
             <UButton v-if="p.hasSample" block color="neutral" variant="ghost" icon="i-lucide-file-down" :label="t('product.sample')" :href="`/api/products/${p.slug}/sample`" external />
             <USeparator />
             <dl class="space-y-2 text-sm">

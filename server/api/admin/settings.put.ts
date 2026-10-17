@@ -15,6 +15,7 @@ const body = z.object({
   }),
   downloadLimit: z.number().int().min(0),
   marketplace: z.object({ sellersOpen: z.boolean(), payoutHoldDays: z.number().int().min(0).max(90), minPayout: z.number().int().min(0) }),
+  reviews: z.object({ enabled: z.boolean(), moderate: z.boolean() }),
   requests: z.object({ enabled: z.boolean(), listKey: z.string().trim().min(1), perDay: z.number().int().min(1).max(100) }),
 }).partial().superRefine((v, ctx) => {
   const p = v.payments

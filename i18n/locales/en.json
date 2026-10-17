@@ -13,7 +13,8 @@
     "library": "My library",
     "orders": "My orders",
     "requests": "Request a deck",
-    "sell": "Sell with us"
+    "sell": "Sell with us",
+    "blog": "Blog"
   },
   "home": {
     "featured": "Featured",
@@ -26,7 +27,9 @@
     "how1": "Pick a product and buy it",
     "how2": "Download it from your library",
     "how3": "Open it in the right app and start",
-    "empty": "No products have been published yet."
+    "empty": "No products have been published yet.",
+    "bundles": "Bundles",
+    "blog": "From the blog"
   },
   "catalog": {
     "results": "{n} products",
@@ -247,7 +250,12 @@
       "sellersOpen": "Accept new seller applications",
       "holdDays": "Holding period (days)",
       "holdDaysHint": "Earnings can be withdrawn after this many days, so refunds are still possible.",
-      "minPayout": "Smallest payout"
+      "minPayout": "Smallest payout",
+      "reviews": "Reviews",
+      "reviewsEnabled": "Buyers can review products",
+      "reviewsEnabledHint": "Only people who own a product can review it.",
+      "reviewsModerate": "Check reviews before they appear",
+      "reviewsModerateHint": "New and edited reviews wait in Admin → Reviews until someone publishes them."
     },
     "upload": "Upload",
     "remove": "Remove",
@@ -315,7 +323,8 @@
       "review": "Waiting for review",
       "sellers": "Sellers to answer",
       "payouts": "Payouts to pay",
-      "reports": "Open reports"
+      "reports": "Open reports",
+      "reviews": "Reviews waiting"
     },
     "requests": "Requests",
     "request": {
@@ -369,7 +378,14 @@
       "paidAt": "paid",
       "markPaid": "Mark as paid",
       "help": "Transfer the amount to the Sheba number, then enter the bank reference."
-    }
+    },
+    "blog": "Blog",
+    "bundles": "Bundles",
+    "coupons": "Discount codes",
+    "home": "Home page",
+    "reviews": "Reviews",
+    "sales": "Sales report",
+    "pickProduct": "Search products to add…"
   },
   "langs": {
     "fa": "فارسی",
@@ -435,7 +451,10 @@
     "getFree": "Add to my library",
     "noMethods": "Online payment is not set up yet. Please contact us.",
     "loginToPay": "Log in to pay",
-    "continue": "Continue shopping"
+    "continue": "Continue shopping",
+    "inBundle": "Included in a bundle in your cart",
+    "subtotal": "Subtotal",
+    "saving": "You save"
   },
   "order": {
     "title": "Order #{n}",
@@ -666,5 +685,191 @@
     "resolve": "Resolve",
     "dismiss": "Dismiss",
     "reopen": "Reopen"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "add": "Save to wishlist",
+    "remove": "Remove from wishlist",
+    "added": "Saved to your wishlist",
+    "empty": "You haven't saved anything yet. Tap the heart on a product to keep it here."
+  },
+  "review": {
+    "title": "Reviews",
+    "count": "{n} reviews",
+    "stars": "{n} out of 5 stars",
+    "rating": "Your rating",
+    "write": "Write a review",
+    "edit": "Edit your review",
+    "bodyPh": "What did you like? What could be better? (optional)",
+    "send": "Send",
+    "saved": "Thanks! Your review was saved.",
+    "pending": "Thanks! Your review will appear after it's checked.",
+    "confirmDelete": "Delete your review?",
+    "yours": "Your review",
+    "none": "No reviews yet. Buyers can review after they get the product.",
+    "buyer": "Buyer",
+    "verified": "Bought it",
+    "sellerReply": "Reply from the seller",
+    "reply": "Reply",
+    "answer": "Reply",
+    "editReply": "Edit reply",
+    "deleteReply": "Delete reply",
+    "replyPlaceholder": "Write a reply the buyer and everyone else will see",
+    "publish": "Publish",
+    "hide": "Hide",
+    "status": {
+      "published": "Published",
+      "pending": "Waiting for check",
+      "hidden": "Hidden"
+    },
+    "filter": {
+      "all": "All",
+      "unanswered": "Not answered"
+    }
+  },
+  "bundle": {
+    "label": "Bundle",
+    "items": "{n} products",
+    "save": "Save {amount}",
+    "offers": "Buy it in a bundle",
+    "all": "Bundles",
+    "none": "No bundles yet.",
+    "help": "Sell several products together for less than their total price.",
+    "separately": "Bought separately",
+    "price": "Bundle price",
+    "add": "Add bundle to cart",
+    "inCart": "In your cart, go to cart",
+    "ownedNote": "If you already own some of these, the price goes down by their share.",
+    "name": "Bundle name",
+    "products": "Products",
+    "productsHelp": "At least two. The order here is the order shown.",
+    "sortOrder": "Order",
+    "cover": "Cover (optional; the first product's cover is used otherwise)",
+    "sold": "{n} sold",
+    "tooFew": "Fewer than 2 products on sale",
+    "splitNote": "The bundle price is split over its products by their prices, so each seller gets their share and commission is taken on that share."
+  },
+  "coupon": {
+    "placeholder": "Discount code",
+    "apply": "Apply",
+    "remove": "Remove",
+    "applied": "Code applied:",
+    "err": {
+      "invalid": "This code isn't valid.",
+      "expired": "This code has expired.",
+      "usedUp": "This code has been used up.",
+      "minTotal": "This code needs a cart of at least {min}.",
+      "usedByMe": "You've already used this code.",
+      "notApplicable": "This code doesn't apply to the products in your cart."
+    },
+    "none": "No discount codes yet.",
+    "code": "Code",
+    "codeHelp": "Latin letters, digits, - and _. Buyers can type it in any case.",
+    "kind": "Type",
+    "percent": "Percent",
+    "amount": "Fixed amount",
+    "value": "Value",
+    "percentValue": "{n}%",
+    "scope": "Applies to",
+    "allProducts": "All products",
+    "product": "Only this product",
+    "productHelp": "Leave empty to use the section above.",
+    "minTotal": "Minimum cart",
+    "maxUses": "Total uses",
+    "maxUsesHelp": "Empty means no limit",
+    "perUser": "Uses per buyer",
+    "startsAt": "Starts",
+    "endsAt": "Ends (inclusive)",
+    "note": "Internal note",
+    "active": "Active",
+    "bundleNote": "Codes apply to products bought on their own, not to bundles. The discount lowers the price the seller's share is worked out from.",
+    "minShort": "min {min}",
+    "until": "until {d}",
+    "used": "used {n} of {max}",
+    "given": "{amount} given",
+    "state": {
+      "live": "Live",
+      "off": "Off",
+      "expired": "Expired",
+      "usedUp": "Used up",
+      "scheduled": "Scheduled"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "none": "No posts yet.",
+    "products": "Products in this post",
+    "more": "More posts",
+    "new": "New post",
+    "postTitle": "Title",
+    "excerpt": "Summary",
+    "body": "Text",
+    "htmlHelp": "You can use HTML: headings, lists, links, images and tables. Scripts and unsafe attributes are removed when you save.",
+    "preview": "Preview",
+    "previewAfterSave": "Save once to see the preview.",
+    "cover": "Cover image",
+    "tags": "Tags",
+    "productsHelp": "Shown under the post, up to 12.",
+    "saveDraft": "Save draft",
+    "publish": "Publish",
+    "unpublish": "Back to draft",
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    }
+  },
+  "homeBuilder": {
+    "add": "Add block",
+    "help": "Turn blocks on or off, change their order and titles. Blocks with nothing to show are hidden in the store.",
+    "show": "Show",
+    "title": "Title",
+    "titleHelp": "Leave empty for the default title.",
+    "section": "Section",
+    "limit": "How many",
+    "image": "Image",
+    "link": "Link",
+    "linkHelp": "A store path like /s/arabic or an https:// address.",
+    "empty": "No blocks. Add one to build the home page.",
+    "types": {
+      "sections": "Section tiles",
+      "featured": "Featured products",
+      "newest": "Newest products",
+      "popular": "Best sellers",
+      "free": "Free products",
+      "section": "Products from a section",
+      "bundles": "Bundles",
+      "blog": "Latest posts",
+      "banner": "Banner",
+      "how": "How it works"
+    }
+  },
+  "sales": {
+    "csv": "Download CSV",
+    "from": "From",
+    "to": "To",
+    "last7": "7 days",
+    "last30": "30 days",
+    "last365": "12 months",
+    "thisYear": "This year",
+    "orders": "Paid orders",
+    "gross": "Sales",
+    "discount": "Discounts",
+    "commission": "Store commission",
+    "sellerNet": "Sellers' share",
+    "refunds": "{n} refunded orders ({amount}) are not counted.",
+    "byDay": "Sales by day",
+    "byMonth": "Sales by month",
+    "none": "No sales in this range.",
+    "ordersN": "{n} orders",
+    "topProducts": "Best-selling products",
+    "topSellers": "Top sellers",
+    "coupons": "Discount codes used",
+    "settlement": "Seller settlement by month",
+    "settlementHelp": "What each seller earned from sales in each month, and what was paid out to them in that month. Months follow the Gregorian calendar.",
+    "month": "Month",
+    "seller": "Seller",
+    "lines": "Items sold",
+    "paidOut": "Paid out",
+    "rangeNote": "From {from} to {to}, by payment date."
   }
 }
