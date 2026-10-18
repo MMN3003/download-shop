@@ -54,7 +54,9 @@ Server error messages stay in English in the API; the app shows them in the visi
 - **Cart and checkout:** the cart lives in a cookie; checkout needs login. Products already owned are skipped; free products go straight to the library.
 - **Payment methods** (`server/payment-methods/`), each switched on in Admin → Settings: ZarinPal (online, API v4), card-to-card and IBAN (buyer uploads a receipt, an admin approves or rejects it in Admin → Orders). Every path ends in `markOrderPaid`, which is idempotent and records the store commission per item.
 - **Library and downloads:** buyers download from "My library" through short-lived signed links (`/dl/<token>`), with a per-product download limit set in Settings.
-- To try ZarinPal locally without the real gateway: `node tests/zarinpal-mock.mjs` and start the app with `ZARINPAL_BASE_URL=http://localhost:4010`.
+- **ZarinPal** always uses its sandbox in development (no merchant ID needed); production uses the merchant ID and the sandbox switch from Settings.
+- **Torob Pay** (installments, `server/payment-methods/torobpay.ts`): switch it on in Settings and put the login from the Torob Pay panel in `TOROBPAY_CLIENT_ID`, `TOROBPAY_CLIENT_SECRET`, `TOROBPAY_USERNAME`, `TOROBPAY_PASSWORD`. It takes orders of 20,000 Toman (200,000 Rial) or more from buyers with a mobile number; payments are verified and settled on return, and a refund in Admin → Orders cancels the purchase at Torob, which returns the money.
+- To try the gateways without the real ones: `node tests/payment-mock.mjs` and start the app with `ZARINPAL_BASE_URL` and/or `TOROBPAY_BASE_URL` set to `http://localhost:4010` (any `TOROBPAY_*` login values).
 
 ## Requests and safety
 

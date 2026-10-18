@@ -12,6 +12,10 @@ if (error.value) throw createError({ statusCode: error.value.statusCode ?? 500, 
 const unpaid = computed(() => ['PENDING_PAYMENT', 'REJECTED'].includes(order.value.status))
 const method = ref<string>(order.value?.paymentMethod ?? order.value?.methods[0]?.key ?? '')
 const current = computed(() => order.value.methods.find((m: any) => m.key === method.value))
+const methodItems = computed(() => order.value.methods.map((m: any) => {
+  const tooSmall = !!m.info?.minAmount && order.value.total < Number(m.info.minAmount)
+  return { value: m.key, label: l(m.name), disabled: tooSmall, description: m.info?.installments ? (tooSmall ? t('cart.installmentsMin', { min: money(Number(m.info.minAmount)) }) : t('cart.installments', { n: num(Number(m.info.installments)) })) : undefined }
+}))
 const lastRejected = computed(() => order.value.status === 'REJECTED' ? order.value.payments.find((p: any) => p.status === 'REJECTED') : null)
 const paidRef = computed(() => order.value.payments.find((p: any) => p.status === 'PAID' && p.refId)?.refId)
 
@@ -92,7 +96,7 @@ useSeoMeta({ title: () => t('order.title', { n: order.value?.number }), robots: 
     <UCard v-if="unpaid">
       <div class="space-y-5">
         <UFormField :label="t('order.payWith')">
-          <URadioGroup v-model="method" orientation="horizontal" variant="card" :items="order.methods.map((m: any) => ({ value: m.key, label: l(m.name) }))" />
+          <URadioGroup v-model="method" orientation="horizontal" variant="card" :items="methodItems" />
         </UFormField>
 
         <UButton v-if="current?.kind === 'online'" block size="xl" icon="i-lucide-lock" :loading="busy" :label="t('cart.pay', { amount: money(order.total) })" @click="payOnline" />

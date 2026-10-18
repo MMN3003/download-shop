@@ -10,6 +10,7 @@ const body = z.object({
   social: z.record(z.string(), z.string()).default({}),
   payments: z.object({
     zarinpal: z.object({ enabled: z.boolean(), merchantId: z.string().trim(), sandbox: z.boolean() }),
+    torobpay: z.object({ enabled: z.boolean() }).default({ enabled: false }),
     card: z.object({ enabled: z.boolean(), cardNumber: z.string().trim(), holder: z.string().trim(), bank: z.string().trim() }),
     iban: z.object({ enabled: z.boolean(), sheba: z.string().trim(), holder: z.string().trim(), bank: z.string().trim() }),
   }),

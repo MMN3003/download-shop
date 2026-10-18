@@ -33,6 +33,8 @@ export const DEFAULT_SETTINGS = {
   /** Each payment method is switched on separately. Secrets stay in env vars. */
   payments: {
     zarinpal: { enabled: false, merchantId: '', sandbox: true },
+    /** Installments; its login is in TOROBPAY_* env vars */
+    torobpay: { enabled: false },
     card: { enabled: false, cardNumber: '', holder: '', bank: '' },
     iban: { enabled: false, sheba: '', holder: '', bank: '' },
   },
