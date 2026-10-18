@@ -42,7 +42,7 @@ async function save() {
             <UFormField :label="t('admin.settingsPage.currencyLabel')"><AdminLocalizedInput v-model="form.currencyLabel" /></UFormField>
           </div>
           <UFormField :label="t('admin.settingsPage.commission')" :help="t('admin.settingsPage.commissionHint')">
-            <UInput v-model.number="form.defaultCommissionPercent" type="number" min="0" max="100" dir="ltr" class="w-40"><template #trailing>%</template></UInput>
+            <UInput v-model.number="form.defaultCommissionPercent" type="number" min="0" max="100" dir="ltr" class="w-40" />
           </UFormField>
           <UFormField :label="t('admin.settingsPage.social')">
             <div class="grid gap-2 sm:grid-cols-2">
