@@ -13,17 +13,6 @@ export async function enabledPaymentMethods() {
   return paymentMethods.filter(m => m.enabled(s)).map(m => ({ key: m.key, kind: m.kind, name: m.name, icon: m.icon, info: m.publicInfo(s) }))
 }
 
-/** Published products from `ids`, with what the user already owns marked. */
-export async function quoteProducts(ids: string[], userId?: string) {
-  const products = await prisma.product.findMany({ where: { id: { in: [...new Set(ids)] }, status: 'PUBLISHED' }, include: productInclude })
-  const owned = userId
-    ? new Set((await prisma.libraryItem.findMany({ where: { userId, productId: { in: products.map(p => p.id) }, revoked: false } })).map(x => x.productId))
-    : new Set<string>()
-  const items = products.map(p => ({ ...toProductCard(p), owned: owned.has(p.id), sellerId: p.sellerId }))
-  const payable = items.filter(i => !i.owned)
-  return { items, total: payable.reduce((n, i) => n + i.finalPrice, 0) }
-}
-
 /**
  * Mark an order paid and give the buyer access. Safe to call more than once
  * (gateway callback and admin approval can race): only the first call acts.
@@ -45,6 +34,7 @@ export async function markOrderPaid(orderId: string) {
       })
       await tx.product.update({ where: { id: item.productId }, data: { salesCount: { increment: 1 } } })
     }
+    if (order.couponId) await tx.coupon.update({ where: { id: order.couponId }, data: { usedCount: { increment: 1 } } })
     return order
   })
   if (done && done.total > 0) {
@@ -76,9 +66,9 @@ export const orderInclude = {
 export async function toPublicOrder(order: Prisma.OrderGetPayload<{ include: typeof orderInclude }>) {
   const methods = await enabledPaymentMethods()
   return {
-    number: order.number, status: order.status, total: order.total, subtotal: order.subtotal, discount: order.discount,
+    number: order.number, status: order.status, total: order.total, subtotal: order.subtotal, discount: order.discount, couponCode: order.couponCode,
     currency: order.currency, paymentMethod: order.paymentMethod, paidAt: order.paidAt, createdAt: order.createdAt,
-    items: order.items.map(i => ({ productId: i.productId, slug: i.product.slug, cover: publicUrl(i.product.cover), title: i.title, unitPrice: i.unitPrice })),
+    items: order.items.map(i => ({ productId: i.productId, slug: i.product.slug, cover: publicUrl(i.product.cover), title: i.title, unitPrice: i.unitPrice, discount: i.discount, inBundle: !!i.bundleId })),
     payments: order.payments.map(p => ({ method: p.method, status: p.status, amount: p.amount, refId: p.refId, reference: p.reference, rejectReason: p.rejectReason, createdAt: p.createdAt })),
     methods,
   }

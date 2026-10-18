@@ -21,6 +21,7 @@ const queue = computed(() => data.value ? [
   { label: t('admin.statsExtra.sellers'), value: data.value.pendingSellers + data.value.proposals, icon: 'i-lucide-users', to: '/admin/sellers', show: isOwner.value },
   { label: t('admin.statsExtra.payouts'), value: data.value.payouts, icon: 'i-lucide-banknote', to: '/admin/payouts', show: isOwner.value },
   { label: t('admin.statsExtra.reports'), value: data.value.reports, icon: 'i-lucide-flag', to: '/admin/reports', show: true },
+  { label: t('admin.statsExtra.reviews'), value: data.value.pendingReviews, icon: 'i-lucide-star', to: '/admin/reviews', show: true },
 ].filter(c => c.show) : [])
 </script>
 

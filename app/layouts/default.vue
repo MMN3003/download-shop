@@ -11,6 +11,7 @@ const userMenu = computed(() => [[
 ], [
   { label: t('nav.library'), icon: 'i-lucide-library', to: localePath('/library') },
   { label: t('nav.orders'), icon: 'i-lucide-receipt', to: localePath('/orders') },
+  { label: t('wishlist.title'), icon: 'i-lucide-heart', to: localePath('/library?tab=wishlist') },
   { label: t('nav.requests'), icon: 'i-lucide-message-square-plus', to: localePath('/requests') },
   { label: t('nav.account'), icon: 'i-lucide-user', to: localePath('/account') },
   ...(isAdmin.value ? [{ label: t('nav.admin'), icon: 'i-lucide-layout-dashboard', to: localePath('/admin') }] : []),
@@ -37,7 +38,7 @@ const navItems = computed(() => tree.value.map(s => ({
   icon: s.icon || undefined,
   to: localePath(`/s/${s.slug}`),
   children: s.children.length ? s.children.map((c: any) => ({ label: l(c.name), icon: c.icon || undefined, to: localePath(`/s/${c.slug}`) })) : undefined,
-})))
+})).concat([{ label: t('nav.blog'), icon: 'i-lucide-newspaper', to: localePath('/blog'), children: undefined }]))
 const isAdmin = computed(() => ['OWNER', 'EDITOR', 'SUPPORT'].includes((user.value as any)?.role))
 const otherLocale = computed(() => locales.value.find(x => x.code !== locale.value)!)
 
@@ -89,6 +90,8 @@ useSeoMeta({ titleTemplate: s => (s ? `${s} | ` : '') + l(store.value?.settings.
         <p class="text-sm text-muted">© {{ new Date().getFullYear() }} {{ l(store?.settings.storeName) }}. {{ t('footer.rights') }}</p>
       </template>
       <template #right>
+        <UButton color="neutral" variant="link" size="sm" icon="i-lucide-newspaper" :label="t('nav.blog')" :to="localePath('/blog')" />
+        <UButton color="neutral" variant="link" size="sm" icon="i-lucide-package-plus" :label="t('bundle.all')" :to="localePath('/bundles')" />
         <UButton color="neutral" variant="link" size="sm" icon="i-lucide-message-square-plus" :label="t('nav.requests')" :to="localePath('/requests')" />
         <UButton color="neutral" variant="link" size="sm" icon="i-lucide-store" :label="t('nav.sell')" :to="localePath('/sell')" />
         <UButton v-if="store?.settings.social.instagram" icon="i-lucide-instagram" color="neutral" variant="ghost" :to="store.settings.social.instagram" target="_blank" aria-label="Instagram" />

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 defineProps<{ product: any }>()
-const { l } = useL()
+const { l, num } = useL()
 const localePath = useLocalePath()
 </script>
 
 <template>
-  <NuxtLink :to="localePath(`/p/${product.slug}`)" class="group flex flex-col rounded-xl border border-default bg-elevated/40 overflow-hidden hover:border-primary hover:shadow-lg transition">
+  <NuxtLink :to="localePath(`/p/${product.slug}`)" class="group relative flex flex-col rounded-xl border border-default bg-elevated/40 overflow-hidden hover:border-primary hover:shadow-lg transition">
+    <WishlistButton :product-id="product.id" class="absolute top-2 end-2 z-10" />
     <div class="aspect-[4/3] bg-gradient-to-br from-primary/15 to-primary/5 grid place-items-center overflow-hidden">
       <img v-if="product.cover" :src="product.cover" :alt="l(product.title)" class="h-full w-full object-cover group-hover:scale-105 transition" loading="lazy">
       <div v-else class="text-center p-4">
@@ -21,7 +22,7 @@ const localePath = useLocalePath()
       <p v-if="product.shortDesc" class="text-sm text-muted line-clamp-2">{{ l(product.shortDesc) }}</p>
       <div class="mt-auto pt-2 flex items-center justify-between">
         <PriceTag :price="product.price" :final-price="product.finalPrice" :is-free="product.isFree" />
-        <span v-if="product.ratingCount" class="text-sm text-muted flex items-center gap-1"><UIcon name="i-lucide-star" class="text-warning" />{{ product.ratingAvg.toFixed(1) }}</span>
+        <span v-if="product.ratingCount" class="text-sm text-muted flex items-center gap-1"><UIcon name="i-lucide-star" class="text-warning [&_path]:fill-current" />{{ num(product.ratingAvg) }} <span class="text-xs">({{ num(product.ratingCount) }})</span></span>
       </div>
     </div>
   </NuxtLink>
