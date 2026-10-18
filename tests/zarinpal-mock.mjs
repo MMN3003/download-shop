@@ -10,4 +10,4 @@ createServer((req, res) => {
     res.statusCode = 404
     res.end('{}')
   })
-}).listen(4010, () => console.log('mock zarinpal on :4010'))
+}).listen(Number(process.env.PORT) || 4010, () => console.log(`mock zarinpal on :${Number(process.env.PORT) || 4010}`))

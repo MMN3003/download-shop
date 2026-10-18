@@ -11,7 +11,7 @@ export const attributeInput = z.object({
   options: z.array(option).nullish(),
   optionListId: z.string().nullish(),
   linksSections: z.boolean().default(false),
-  unit: localizedOptional,
+  unit: localizedText,
   required: z.boolean().default(false),
   filterable: z.boolean().default(false),
   showAsBadge: z.boolean().default(false),
@@ -21,7 +21,7 @@ export const attributeInput = z.object({
 export const productTypeInput = z.object({
   key: z.string().trim().min(1).max(50).regex(/^[a-z][a-z0-9_-]*$/, 'Lowercase letters, numbers, - and _'),
   name: localized,
-  description: localizedOptional,
+  description: localizedText,
   plugin: z.string().nullish(),
   icon: z.string().nullish(),
   enabled: z.boolean().default(true),

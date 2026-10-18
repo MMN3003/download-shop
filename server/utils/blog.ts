@@ -9,8 +9,8 @@ export const blogInput = z.object({
   status: z.enum(['draft', 'published']).default('draft'),
   tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
   productIds: z.array(z.string()).max(12).default([]),
-  seoTitle: localizedOptional,
-  seoDesc: localizedOptional,
+  seoTitle: localizedText,
+  seoDesc: localizedText,
 })
 
 /** Excerpts are plain text; the body is HTML cleaned like product descriptions. */

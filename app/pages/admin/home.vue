@@ -46,7 +46,7 @@ async function save() {
   catch (err: any) {
     const issue = err?.data?.data?.issues?.[0]
     const n = issue?.path?.[1]
-    toast.add({ title: t('admin.error'), description: typeof n === 'number' ? `${t(`homeBuilder.types.${blocks.value[n]?.type}`)}: ${issue.message}` : apiError(err), color: 'error' })
+    toast.add({ title: t('admin.error'), description: typeof n === 'number' ? `${t(`homeBuilder.types.${blocks.value[n]?.type}`)}: ${apiError(err)}` : apiError(err), color: 'error' })
   }
   finally { saving.value = false }
 }

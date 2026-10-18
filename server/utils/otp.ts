@@ -21,6 +21,8 @@ export async function issueOtp(target: { kind: 'phone' | 'email', value: string 
   await prisma.otpCode.create({ data: { target: target.value, codeHash: hashCode(target.value, code), expiresAt: new Date(Date.now() + TTL_MS), ip } })
   const { storeName } = await getSettings()
   const name = storeName.fa || storeName.en
+  // Development only: show the code so you can log in without a real SMS or email
+  if (logOtpCodes()) console.info(`[otp] ${target.kind === 'phone' ? 'SMS' : 'email'} code for ${target.value}: ${code}`)
   if (target.kind === 'phone') await sendSms(target.value, `${name}\nکد ورود: ${code}`, code)
   else await sendEmail(target.value, `${name}: ${code}`, `Your login code: ${code}\nکد ورود شما: ${code}\n\nThe code is valid for 2 minutes.`)
   return { expiresIn: TTL_MS / 1000, resendIn: RESEND_MS / 1000 }
@@ -39,4 +41,9 @@ export async function verifyOtp(target: string, code: string): Promise<boolean> 
   // Conditional update so the same code can't be used twice in parallel
   const { count } = await prisma.otpCode.updateMany({ where: { id: otp.id, consumedAt: null }, data: { consumedAt: new Date() } })
   return count === 1
+}
+
+/** Codes go to the log only outside production, and only when LOG_OTP_CODES isn't "false". */
+export function logOtpCodes() {
+  return process.env.NODE_ENV !== 'production' && process.env.LOG_OTP_CODES !== 'false'
 }

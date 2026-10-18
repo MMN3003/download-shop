@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const body = z.object({
   storeName: localized,
-  tagline: localizedOptional,
+  tagline: localizedText,
   logo: z.string().nullish(),
   currency: z.string().min(1),
   currencyLabel: localized,
