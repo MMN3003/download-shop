@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { t, locale } = useI18n()
-const { l, money } = useL()
+const { l, money, num } = useL()
 const localePath = useLocalePath()
 const toast = useToast()
 const cart = useCart()
@@ -14,7 +14,16 @@ function applyCoupon() { coupon.value = codeInput.value.trim() || null }
 function removeCoupon() { coupon.value = null; codeInput.value = '' }
 const { data: methods } = await useFetch<any[]>('/api/checkout/methods')
 const method = ref<string>('')
-watchEffect(() => { if (!method.value && methods.value?.length) method.value = methods.value[0].key })
+/** Installment methods take only orders above their minimum. */
+const tooSmall = (m: any) => !!m.info?.minAmount && (quote.value?.total ?? 0) < Number(m.info.minAmount)
+const methodItems = computed(() => (methods.value ?? []).map(m => ({
+  value: m.key, label: l(m.name), icon: m.icon, disabled: tooSmall(m),
+  description: m.info?.installments ? (tooSmall(m) ? t('cart.installmentsMin', { min: money(Number(m.info.minAmount)) }) : t('cart.installments', { n: num(Number(m.info.installments)) })) : undefined,
+})))
+watchEffect(() => {
+  const usable = methodItems.value.filter(m => !m.disabled)
+  if (usable.length && !usable.some(m => m.value === method.value)) method.value = usable[0]!.value
+})
 
 // Drop products that are no longer for sale
 watch(quote, (q) => {
@@ -120,7 +129,7 @@ useSeoMeta({ title: () => t('cart.title'), robots: 'noindex' })
             <UAlert v-if="!methods?.length" color="warning" variant="soft" :title="t('cart.noMethods')" />
             <URadioGroup
               v-else v-model="method" variant="card" indicator="end"
-              :items="methods.map(m => ({ value: m.key, label: l(m.name), icon: m.icon }))"
+              :items="methodItems"
             >
               <template #label="{ item }"><span class="inline-flex items-center gap-2"><UIcon :name="(item as any).icon" class="size-5" />{{ (item as any).label }}</span></template>
             </URadioGroup>

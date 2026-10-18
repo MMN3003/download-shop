@@ -255,7 +255,11 @@
       "reviewsEnabled": "خریداران بتوانند نظر بدهند",
       "reviewsEnabledHint": "فقط کسی که محصول را دارد می‌تواند نظر بدهد.",
       "reviewsModerate": "نظرها قبل از نمایش بررسی شوند",
-      "reviewsModerateHint": "نظرهای تازه و ویرایش‌شده در «مدیریت ← نظرها» می‌مانند تا کسی منتشرشان کند."
+      "reviewsModerateHint": "نظرهای تازه و ویرایش‌شده در «مدیریت ← نظرها» می‌مانند تا کسی منتشرشان کند.",
+      "sandboxDev": "در حالت توسعه همیشه از سندباکس زرین‌پال استفاده می‌شود، هر چه این کلید باشد.",
+      "torobpay": "ترب‌پی (پرداخت قسطی)",
+      "torobpayHelp": "خریدار در ۴ قسط پرداخت می‌کند؛ برای سفارش‌های ۲۰٬۰۰۰ تومان و بیشتر. اطلاعات ورود آن در فایل env (متغیرهای TOROBPAY_*) قرار می‌گیرد.",
+      "torobpayMissing": "اطلاعات ورود ترب‌پی در فایل env تنظیم نشده، پس خریداران هنوز آن را نمی‌بینند."
     },
     "upload": "بارگذاری",
     "remove": "حذف",
@@ -454,7 +458,9 @@
     "continue": "ادامه خرید",
     "inBundle": "داخل یکی از بسته‌های سبد شماست",
     "subtotal": "جمع",
-    "saving": "تخفیف شما"
+    "saving": "تخفیف شما",
+    "installments": "پرداخت در {n} قسط",
+    "installmentsMin": "برای سفارش‌های {min} و بیشتر"
   },
   "order": {
     "title": "سفارش #{n}",
@@ -878,6 +884,7 @@
     "aPercentageCanBeAtMost100": "درصد حداکثر ۱۰۰ است",
     "aSectionCannotBePlacedInsideItself": "یک دسته را نمی‌توان داخل خودش گذاشت",
     "acceptTheSellerTerms": "شرایط فروشندگی را بپذیرید",
+    "addAMobileNumberToYourAccount": "برای پرداخت با ترب‌پی، اول شمارهٔ موبایل را به حسابتان اضافه کنید",
     "addAnEmailToYourAccountFirst": "اول یک ایمیل به حسابتان اضافه کنید",
     "addAtLeastOneOption": "دست‌کم یک گزینه اضافه کنید",
     "addYourShebaNumberInYourSeller": "اول شماره شبا را در پروفایل فروشندگی وارد کنید",
@@ -891,6 +898,7 @@
     "chooseASection": "یک دسته انتخاب کنید",
     "chooseAtMostThreeYears": "حداکثر بازهٔ سه‌ساله انتخاب کنید",
     "chooseFromTheList": "از فهرست انتخاب کنید",
+    "couldNotReachTorobPayPleaseTry": "ارتباط با ترب‌پی برقرار نشد. دوباره تلاش کنید.",
     "couldNotReachZarinpalPleaseTryAgain": "ارتباط با زرین‌پال برقرار نشد. دوباره تلاش کنید.",
     "currentPasswordIsWrong": "رمز فعلی اشتباه است",
     "describeTheProblem": "مشکل را توضیح دهید",
@@ -943,6 +951,7 @@
     "theCodeIsWrongOrHasExpired": "کد اشتباه است یا منقضی شده",
     "theEndMustBeAfterTheStart": "پایان باید بعد از شروع باشد",
     "theSellerAcceptsTheStoreSOffers": "فروشنده پیشنهادهای فروشگاه را می‌پذیرد",
+    "thisAmountIsTooSmallForTorob": "این مبلغ برای پرداخت با ترب‌پی کم است",
     "thisCodeAlreadyExists": "این کد از قبل وجود دارد",
     "thisCodeWasUsedInOrdersSwitch": "این کد در سفارش‌ها استفاده شده است. به جای حذف، خاموشش کنید.",
     "thisDownloadLinkHasExpiredOpenYour": "این لینک دانلود منقضی شده است. از کتابخانه لینک تازه بگیرید.",
@@ -963,6 +972,8 @@
     "tooManyCodesRequestedTryAgainLater": "تعداد درخواست کد زیاد شده است. بعداً دوباره تلاش کنید.",
     "tooManyMessagesTryAgainLater": "تعداد پیام‌ها زیاد شده است. بعداً دوباره تلاش کنید.",
     "tooManyReportsToday": "امروز گزارش‌های زیادی فرستاده‌اید",
+    "torobpayCancel": "ترب‌پی پرداخت را لغو نکرد ({code})",
+    "torobpayRefused": "ترب‌پی پرداخت را نپذیرفت ({code})",
     "typeInUse": "{n} محصول از این نوع استفاده می‌کنند؛ اول آن‌ها را جابه‌جا یا حذف کنید",
     "unknownPayment": "پرداخت ناشناخته است",
     "unknownPlugin": "افزونهٔ ناشناخته",

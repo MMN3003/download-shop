@@ -255,7 +255,11 @@
       "reviewsEnabled": "Buyers can review products",
       "reviewsEnabledHint": "Only people who own a product can review it.",
       "reviewsModerate": "Check reviews before they appear",
-      "reviewsModerateHint": "New and edited reviews wait in Admin → Reviews until someone publishes them."
+      "reviewsModerateHint": "New and edited reviews wait in Admin → Reviews until someone publishes them.",
+      "sandboxDev": "In development the ZarinPal sandbox is always used, whatever this switch says.",
+      "torobpay": "Torob Pay (installments)",
+      "torobpayHelp": "Buyers pay in 4 installments; for orders of 20,000 Toman or more. Its login goes in the env file (TOROBPAY_* variables).",
+      "torobpayMissing": "Torob Pay login is not set in the env file, so buyers will not see it yet."
     },
     "upload": "Upload",
     "remove": "Remove",
@@ -454,7 +458,9 @@
     "continue": "Continue shopping",
     "inBundle": "Included in a bundle in your cart",
     "subtotal": "Subtotal",
-    "saving": "You save"
+    "saving": "You save",
+    "installments": "Pay in {n} installments",
+    "installmentsMin": "For orders of {min} or more"
   },
   "order": {
     "title": "Order #{n}",
@@ -878,6 +884,7 @@
     "aPercentageCanBeAtMost100": "A percentage can be at most 100",
     "aSectionCannotBePlacedInsideItself": "A section cannot be placed inside itself",
     "acceptTheSellerTerms": "Accept the seller terms",
+    "addAMobileNumberToYourAccount": "Add a mobile number to your account to pay with Torob Pay",
     "addAnEmailToYourAccountFirst": "Add an email to your account first",
     "addAtLeastOneOption": "Add at least one option",
     "addYourShebaNumberInYourSeller": "Add your Sheba number in your seller profile first",
@@ -891,6 +898,7 @@
     "chooseASection": "Choose a section",
     "chooseAtMostThreeYears": "Choose at most three years",
     "chooseFromTheList": "Choose from the list",
+    "couldNotReachTorobPayPleaseTry": "Could not reach Torob Pay. Please try again.",
     "couldNotReachZarinpalPleaseTryAgain": "Could not reach ZarinPal. Please try again.",
     "currentPasswordIsWrong": "Current password is wrong",
     "describeTheProblem": "Describe the problem",
@@ -943,6 +951,7 @@
     "theCodeIsWrongOrHasExpired": "The code is wrong or has expired",
     "theEndMustBeAfterTheStart": "The end must be after the start",
     "theSellerAcceptsTheStoreSOffers": "The seller accepts the store's offers",
+    "thisAmountIsTooSmallForTorob": "This amount is too small for Torob Pay",
     "thisCodeAlreadyExists": "This code already exists",
     "thisCodeWasUsedInOrdersSwitch": "This code was used in orders. Switch it off instead.",
     "thisDownloadLinkHasExpiredOpenYour": "This download link has expired. Open your library to get a new one.",
@@ -963,6 +972,8 @@
     "tooManyCodesRequestedTryAgainLater": "Too many codes requested. Try again later.",
     "tooManyMessagesTryAgainLater": "Too many messages. Try again later.",
     "tooManyReportsToday": "Too many reports today",
+    "torobpayCancel": "Torob Pay did not cancel the payment ({code})",
+    "torobpayRefused": "Torob Pay refused the payment ({code})",
     "typeInUse": "{n} products use this type; move or delete them first",
     "unknownPayment": "Unknown payment",
     "unknownPlugin": "Unknown plugin",

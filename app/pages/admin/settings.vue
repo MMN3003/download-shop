@@ -4,6 +4,7 @@ const { t } = useI18n()
 const toast = useToast()
 const { data: s } = await useFetch<any>('/api/admin/settings')
 const form = ref<any>(s.value ? { ...s.value } : {})
+const isDev = import.meta.dev
 const { data: lists } = await useFetch<any[]>('/api/admin/option-lists')
 const { l } = useL()
 const saving = ref(false)
@@ -62,6 +63,13 @@ async function save() {
               <UFormField :label="t('admin.settingsPage.merchantId')"><UInput v-model="form.payments.zarinpal.merchantId" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full" /></UFormField>
               <USwitch v-model="form.payments.zarinpal.sandbox" :label="t('admin.settingsPage.sandbox')" />
             </div>
+            <p v-if="form.payments.zarinpal.enabled && isDev" class="text-xs text-muted">{{ t('admin.settingsPage.sandboxDev') }}</p>
+          </div>
+          <USeparator />
+          <div class="space-y-3">
+            <USwitch v-model="form.payments.torobpay.enabled" :label="t('admin.settingsPage.torobpay')" />
+            <p class="text-xs text-muted">{{ t('admin.settingsPage.torobpayHelp') }}</p>
+            <UAlert v-if="form.payments.torobpay.enabled && !s?.torobpayReady" color="warning" variant="soft" :title="t('admin.settingsPage.torobpayMissing')" />
           </div>
           <USeparator />
           <div class="space-y-3">
