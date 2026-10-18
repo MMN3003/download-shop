@@ -23,12 +23,15 @@ export async function sendSms(to: string, text: string, otp?: string) {
     if (!res.ok) throw new Error(`SMS failed (${res.status})`)
     return
   }
-  console.info(`[sms → ${to}] ${text}`)
+  // No provider: fine in development (the code is logged), but in production nobody would get it
+  if (process.env.NODE_ENV === 'production') throw createError({ statusCode: 503, message: 'SMS is not set up yet' })
+  console.info(`[sms → ${to}] ${otp ? text.replace(otp, '******') : text}`)
 }
 
 let mailer: Transporter | null = null
 export async function sendEmail(to: string, subject: string, text: string) {
   if (!process.env.SMTP_URL) {
+    if (process.env.NODE_ENV === 'production') throw createError({ statusCode: 503, message: 'Email is not set up yet' })
     console.info(`[email → ${to}] ${subject}\n${text}`)
     return
   }

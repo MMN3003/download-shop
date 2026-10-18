@@ -3,15 +3,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
+    "build": "node scripts/with-env.mjs production nuxt build",
+    "dev": "node scripts/with-env.mjs development nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "node scripts/with-env.mjs production nuxt preview",
     "postinstall": "nuxt prepare",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:seed": "tsx --env-file=.env prisma/seed.ts",
-    "test": "vitest run"
+    "db:migrate": "node scripts/with-env.mjs development prisma migrate dev",
+    "db:deploy": "node scripts/with-env.mjs production prisma migrate deploy",
+    "db:seed": "node scripts/with-env.mjs development tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:e2e": "node scripts/with-env.mjs test vitest run --config vitest.e2e.config.ts",
+    "start": "node scripts/with-env.mjs production node .output/server/index.mjs",
+    "db:seed:prod": "node scripts/with-env.mjs production tsx prisma/seed.ts"
   },
   "dependencies": {
     "@adonisjs/hash": "9.1.1",

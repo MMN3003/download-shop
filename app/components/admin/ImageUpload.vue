@@ -20,7 +20,7 @@ async function pick(e: Event) {
     preview.value = res.url
   }
   catch (err: any) {
-    toast.add({ title: t('admin.error'), description: err?.data?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: apiError(err), color: 'error' })
   }
   finally {
     busy.value = false

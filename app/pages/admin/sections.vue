@@ -44,7 +44,7 @@ async function save() {
     await refresh()
   }
   catch (e: any) {
-    toast.add({ title: t('admin.error'), description: e?.data?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: apiError(e), color: 'error' })
   }
   finally { saving.value = false }
 }

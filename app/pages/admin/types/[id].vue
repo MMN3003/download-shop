@@ -51,7 +51,7 @@ async function save() {
     if (isNew) navigateTo(localePath(`/admin/types/${saved.id}`))
   }
   catch (e: any) {
-    toast.add({ title: t('admin.error'), description: e?.data?.message ?? e?.data?.data?.issues?.[0]?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: apiError(e), color: 'error' })
   }
   finally { saving.value = false }
 }
@@ -62,7 +62,7 @@ async function remove() {
     navigateTo(localePath('/admin/types'))
   }
   catch (e: any) {
-    toast.add({ title: t('admin.error'), description: e?.data?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: apiError(e), color: 'error' })
   }
 }
 </script>

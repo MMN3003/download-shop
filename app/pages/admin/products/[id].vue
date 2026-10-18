@@ -79,7 +79,7 @@ async function save() {
   }
   catch (e: any) {
     const issue = e?.data?.data?.issues?.[0]
-    toast.add({ title: t('admin.error'), description: issue ? `${issue.path?.join('.')}: ${issue.message}` : e?.data?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: issue ? `${issue.path?.join('.')}: ${apiError(e)}` : apiError(e), color: 'error' })
   }
   finally { saving.value = false }
 }
@@ -127,7 +127,7 @@ async function uploadFile(e: Event) {
     await load()
   }
   catch (err: any) {
-    toast.add({ title: t('admin.error'), description: err?.data?.message, color: 'error' })
+    toast.add({ title: t('admin.error'), description: apiError(err), color: 'error' })
   }
   finally {
     upload.busy = false

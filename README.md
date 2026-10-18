@@ -9,8 +9,8 @@ Stack: Nuxt 4 (Vue 3), Nuxt UI, PostgreSQL + Prisma, nuxt-auth-utils, @nuxtjs/i1
 
 ```bash
 pnpm install
-cp .env.example .env        # set DATABASE_URL and NUXT_SESSION_PASSWORD
-docker compose up -d db     # or use your own PostgreSQL
+cp .env.development.example .env.development   # works as is with the docker database
+docker compose up -d db     # or use your own PostgreSQL (then change DATABASE_URL)
 pnpm db:migrate             # create tables
 pnpm db:seed                # owner account, product types, sections, 3 demo decks
 pnpm dev                    # http://localhost:3000, admin at /admin
@@ -18,7 +18,15 @@ pnpm dev                    # http://localhost:3000, admin at /admin
 
 The seed prints the owner login (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`, default `admin@example.com` / `admin1234`; change it).
 
-Production: `pnpm build && pnpm db:deploy && node .output/server/index.mjs`. Uploaded files go to `STORAGE_DIR` (`public/` for images and previews, `private/` for the files being sold); back it up with the database.
+### Environment files
+
+`pnpm dev`, `db:migrate` and `db:seed` read `.env.development`; `pnpm build`, `start`, `db:deploy` and `db:seed:prod` read `.env.production`. Each starts from its `.example` file (git ignores the real ones). An old `.env` still works: it fills in anything the mode file leaves out, and variables set in the shell or by the host always win.
+
+- **Development:** login codes are printed in the server log as `[otp] SMS code for 0912…: 123456` (turn off with `LOG_OTP_CODES="false"`). Without an SMS provider or `SMTP_URL`, messages are printed instead of sent.
+- **Production:** codes are never logged, and logging in fails with a clear error until `SMS_PROVIDER` and `SMTP_URL` are set, so nobody waits for a code that was never sent.
+- `NUXT_SESSION_PASSWORD` must be at least 32 characters (`openssl rand -base64 32`). With a shorter one the server prints an error in development and refuses to start in production.
+
+Production: `pnpm build && pnpm db:deploy && pnpm start`. Uploaded files go to `STORAGE_DIR` (`public/` for images and previews, `private/` for the files being sold); back it up with the database.
 
 ## How it is organised
 
@@ -32,12 +40,17 @@ Production: `pnpm build && pnpm db:deploy && node .output/server/index.mjs`. Upl
 ## Tests
 
 ```bash
-pnpm test
+pnpm test        # unit tests
+pnpm test:e2e    # flow tests against a real server and database
 ```
+
+The flow tests (`tests/e2e/`) start the ZarinPal mock and `nuxt dev` on port 3100 themselves, then go through sign up and login (phone and email codes, password, linking, logout), browsing, cart, coupons, bundles, ZarinPal and card-to-card payments with admin approval, downloads, reviews, the wishlist, product requests, the seller flow (application, commission, review queue, payouts), reports, the blog, the home page builder and admin pages, sending script payloads into the inputs along the way. They need the database migrated and seeded and add their own test users and products to it, so point them at a separate database with `.env.test` (same variables, read before `.env.development`) if you want to keep your dev data clean. To test a server you already run, set `E2E_BASE_URL` and `E2E_SERVER_LOG` (the file its output goes to).
+
+Server error messages stay in English in the API; the app shows them in the visitor's language through `shared/utils/server-errors.ts` and the `serverErrors` keys in `i18n/locales/`. `tests/server-errors.test.ts` fails when a new server message has no translation.
 
 ## Selling (milestone 2)
 
-- **Accounts:** log in with a mobile number (SMS code) or email (code or password). A phone and an email can be linked to one account from "My account". Without `SMS_PROVIDER`/`SMTP_URL`, codes are printed in the server log.
+- **Accounts:** log in with a mobile number (SMS code) or email (code or password). A phone and an email can be linked to one account from "My account". In development, codes are printed in the server log (see Environment files).
 - **Cart and checkout:** the cart lives in a cookie; checkout needs login. Products already owned are skipped; free products go straight to the library.
 - **Payment methods** (`server/payment-methods/`), each switched on in Admin → Settings: ZarinPal (online, API v4), card-to-card and IBAN (buyer uploads a receipt, an admin approves or rejects it in Admin → Orders). Every path ends in `markOrderPaid`, which is idempotent and records the store commission per item.
 - **Library and downloads:** buyers download from "My library" through short-lived signed links (`/dl/<token>`), with a per-product download limit set in Settings.

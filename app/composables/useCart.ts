@@ -9,7 +9,21 @@ export function useCart() {
   return { ids, has, add, remove, clear, count }
 }
 
-/** Error message from a failed $fetch, falling back to a generic one. */
+let translate: ((key: string, params?: Record<string, unknown>) => string) | null = null
+/** Set once by plugins/i18n-errors.ts, so apiError can be called after an await. */
+export function setErrorTranslator(t: typeof translate) { translate = t }
+
+/**
+ * Message for a failed $fetch in the visitor's language. Server messages are
+ * English; known ones are looked up in `serverErrors` (shared/utils/server-errors.ts).
+ */
 export function apiError(e: any, fallback = ''): string {
-  return e?.data?.message || e?.data?.data?.issues?.[0]?.message || e?.message || fallback
+  const issue = e?.data?.data?.issues?.[0]
+  // A validation failure's useful text is in its first issue, not in "Validation Error"
+  const raw: string = issue?.message || e?.data?.message || ''
+  const known = raw ? serverErrorKey(raw) : null
+  if (translate && known) return translate(`serverErrors.${known.key}`, known.params)
+  if (translate && issue) return translate('serverErrors.checkForm')
+  if (raw && !/^(HTTP|Fetch|FetchError|\[)/.test(raw)) return raw
+  return fallback || (translate ? translate('serverErrors.generic') : e?.message || '')
 }
